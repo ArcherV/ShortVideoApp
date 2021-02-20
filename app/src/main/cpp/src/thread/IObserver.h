@@ -13,7 +13,7 @@
 class IObserver : public XThread {
 public:
     //观察者接收数据函数
-    virtual void Update(XData data){}
+    virtual void Update(XData data) = 0;
 
     //主体函数 添加观察者(线程安全)
     void AddObs(IObserver *obs);

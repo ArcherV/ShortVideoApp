@@ -1,7 +1,11 @@
 package com.example.shortvideoapp;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.SurfaceView;
 import android.view.View;
@@ -16,6 +20,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private static final int RUNNING = 0xFFFF0000;
+    private static final int PERMISSION_REQUEST_CAMERA = 1;
 
     SurfaceView view = null;
     ImageButton recorder_button = null;
@@ -23,11 +28,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean recording;
     private boolean playing;
+    int color = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA }, PERMISSION_REQUEST_CAMERA);
+            return;
+        }
 
         recording = playing = false;
 
@@ -53,6 +64,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.play_button:
                 if (!playing) {
                     player_button.setColorFilter(RUNNING);
+                    color = (color + 1) % 3;
+                    setColor(color);
                 } else {
                     player_button.setColorFilter(0);
                 }
@@ -61,5 +74,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
-
+    // 为了测试EGL是否创建正确
+    private native void setColor(int c);
 }
