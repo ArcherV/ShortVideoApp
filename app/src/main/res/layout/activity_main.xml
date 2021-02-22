@@ -9,10 +9,12 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <com.example.shortvideoapp.svaView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/camera_preview"/>
+        <TextureView
+            android:id="@+id/textureview"
+            android:layout_width="480dp"
+            android:layout_height="640dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
         <ImageButton
             android:id="@+id/record_button"
             android:layout_width="64dp"
