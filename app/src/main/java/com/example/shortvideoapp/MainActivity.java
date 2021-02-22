@@ -1,14 +1,21 @@
 package com.example.shortvideoapp;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
+import android.graphics.SurfaceTexture;
 import android.os.Bundle;
+import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, SurfaceTexture.OnFrameAvailableListener {
 
     // Used to load the 'native-lib' library on application startup.
     static {
@@ -16,10 +23,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private static final int RUNNING = 0xFFFF0000;
+    private static final String cameraId = "1";
+    private static final int PERMISSION_REQUEST_CAMERA = 1;
 
     SurfaceView view = null;
     ImageButton recorder_button = null;
     ImageButton player_button = null;
+    private Camera camera;
+    private SurfaceTexture surfaceTexture;
 
     private boolean recording;
     private boolean playing;
@@ -36,6 +47,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         player_button = findViewById(R.id.play_button);
         recorder_button.setOnClickListener(this);
         player_button.setOnClickListener(this);
+
+        registerAssetManager(getAssets());
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA }, PERMISSION_REQUEST_CAMERA);
+            return;
+        }
+
+        surfaceTexture = new SurfaceTexture(CreateTexture());
+        camera = new Camera(this, surfaceTexture);
+        camera.openCamera(cameraId);
     }
 
     @Override
@@ -62,4 +84,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+        surfaceTexture.updateTexImage();
+        render();
+    }
+
+    private native void registerAssetManager(AssetManager assetManager);
+    private native int CreateTexture();
+    private native void render();
 }

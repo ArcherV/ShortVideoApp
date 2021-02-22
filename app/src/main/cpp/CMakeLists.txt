@@ -16,7 +16,7 @@ FILE (GLOB ALL_INCLUDES "src/*.h" "src/*/*.h" )
 
 SET (ALL_SRCS ${ALL_SOURCES} ${ALL_INCLUDES})
 
-message("EXECUTE AGAIN!")
+#message("EXECUTE AGAIN!")
 
 #设置ffmpeg库所在路径的变量
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_GLAGS} -L${CMAKE_SOURCE_DIR}/libs/${ANDROID_ABI}")
