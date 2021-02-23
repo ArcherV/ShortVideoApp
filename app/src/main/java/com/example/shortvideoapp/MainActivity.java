@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.record_button:
                 if (!recording) {
                     recorder_button.setColorFilter(RUNNING);
+                    startRecord();
                 } else {
                     recorder_button.setColorFilter(0);
                 }
@@ -114,4 +115,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private native void registerAssetManager(AssetManager assetManager);
     private native int CreateTextureOES();
     private native void render();
+    private native void startRecord();
 }

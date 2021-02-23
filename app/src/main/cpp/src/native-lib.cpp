@@ -9,6 +9,8 @@
 #include "utils/XUtils.h"
 #include "utils/Xlog.h"
 #include "opengl/XTexture.h"
+#include "encode/IEncode.h"
+#include "encode/FFEncode.h"
 
 AAssetManager *g_pAssetManager = nullptr;
 
@@ -42,4 +44,12 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_shortvideoapp_MainActivity_render(JNIEnv *, jobject) {
     XTexture::Get()->DrawOES();
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_shortvideoapp_MainActivity_startRecord(JNIEnv *, jobject) {
+    IEncode *ffencode = new FFEncode();
+    XTexture::Get()->AddObs(ffencode);
+    ffencode->Start();
 }

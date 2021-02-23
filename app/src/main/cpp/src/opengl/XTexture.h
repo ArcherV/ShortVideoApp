@@ -8,8 +8,9 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include "XShader.h"
+#include "../thread/IObserver.h"
 
-class XTexture {
+class XTexture : public IObserver {
 public:
     static XTexture *Get();
     virtual bool Init(void *win, const char *, const char *, const char *) = 0;
@@ -27,6 +28,7 @@ protected:
     unsigned int textureOES = 0;
     unsigned int texture2D = 0;
     unsigned int framebuffer = 0;
+    u_char *pixs_buffer;
 };
 
 

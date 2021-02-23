@@ -8,7 +8,7 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-bool XData::Alloc(int size, const char *d)
+bool XData::Alloc(int size, const u_char *d)
 {
     Drop();
     type = UCHAR_TYPE;

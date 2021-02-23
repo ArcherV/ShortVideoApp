@@ -5,6 +5,8 @@
 #ifndef SHORTVIDEOAPP_XDATA_H
 #define SHORTVIDEOAPP_XDATA_H
 
+#include <sys/types.h>
+
 enum
 {
     AVPACKET_TYPE = 0,
@@ -16,14 +18,14 @@ struct XData {
     int pts = 0;
     unsigned int texId;
 
-    unsigned char *data = 0;
-    unsigned  char *datas[8] = {0};
+    u_char *data = 0;
+    u_char *datas[8] = {0};
     int size = 0;
     bool isAudio = false;
     int width = 0;
     int height = 0;
     int format = 0;
-    bool Alloc(int size, const char *data = 0);
+    bool Alloc(int size, const u_char *data = 0);
     void Drop();
 };
 

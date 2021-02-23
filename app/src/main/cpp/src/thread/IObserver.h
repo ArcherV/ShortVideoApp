@@ -21,7 +21,7 @@ public:
     //通知所有观察者(线程安全)
     void Notify(XData data);
 
-protected:
+private:
     std::vector<IObserver *> obss;
     std::mutex mux;
 };

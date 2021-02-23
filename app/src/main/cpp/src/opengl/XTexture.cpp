@@ -8,9 +8,16 @@
 #include "../utils/Xlog.h"
 #include "XShader.h"
 
+const int WIDTH = 720;
+const int HEIGHT = 1280;
+
 class CXTexture:public XTexture
 {
 public:
+    void Update(XData data) override {
+
+    }
+
     virtual void Drop()
     {
         std::lock_guard<std::mutex> lck(mux);
@@ -31,6 +38,8 @@ public:
             return false;
         }
         sh.Init(vertex, fragmentOES, fragment);
+        pixs_buffer = new u_char[WIDTH * HEIGHT * 4];
+        num = 0;
         return true;
     }
 
@@ -81,11 +90,22 @@ public:
 
         sh.Draw(TYPE_OES);
 
+        glReadPixels(0, 0, WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, pixs_buffer);
+        XData data;
+        data.Alloc(WIDTH * HEIGHT * 4, pixs_buffer);
+        data.width = WIDTH;
+        data.height = HEIGHT;
+        data.pts = ++num;
+        Notify(data);
+        XLOGE("DrawOES", "生产 %d", num);
+//        XLOGE("DrawOES", "%d", obss.size());
+
         XEGL::Get()->Draw();
     }
 
 private:
     XShader sh;
+    int num;
     std::mutex mux;
 };
 
