@@ -4,14 +4,29 @@
 
 #include "XShader.h"
 #include "../utils/Xlog.h"
+#include "../utils/XUtils.h"
 #include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
+const float vers[] = {
+        1.0f,   -1.0f,  0.0f,
+        -1.0f,  -1.0f,  0.0f,
+        1.0f,   1.0f,   0.0f,
+        -1.0f,  1.0f,   0.0f,
+};
+const float txts[] = {
+        1.0f, 0.0f,//右下
+        0.0f,0.0f,
+        1.0f,1.0f,
+        0.0,1.0
+};
 
 static GLuint InitShader(const char *code, GLuint type)
 {
     //创建shader
     GLuint sh = glCreateShader(type);
     if(sh == 0){
-        XLOGE("Init", "glCreateShader %d failed!", type);
+        XLOGE("InitShader", "glCreateShader %d failed!", type);
         return 0;
     }
 
@@ -24,10 +39,10 @@ static GLuint InitShader(const char *code, GLuint type)
     GLint status;
     glGetShaderiv(sh, GL_COMPILE_STATUS, &status);
     if(status == 0){
-        XLOGE("Init", "glCompileShader failed!");
+        XLOGE("InitShader", "glCompileShader failed!");
         return 0;
     }
-    XLOGE("Init", "glCompileShader success!");
+    XLOGE("InitShader", "glCompileShader success!");
     return sh;
 }
 
@@ -35,83 +50,71 @@ void XShader::Close()
 {
     std::lock_guard<std::mutex> lck(mux);
     //释放shader
-    if(program)
-        glDeleteProgram(program);
-
-    if(fsh)
-        glDeleteShader(fsh);
-
-    if(vsh)
-        glDeleteShader(vsh);
+    if(program2D)
+        glDeleteProgram(program2D);
+    if(programOES)
+        glDeleteProgram(programOES);
 }
 
-bool XShader::Init(const char *vertexShader, const char *fragmentShader)
+bool XShader::Init(const char *vertexShader, const char *fragmentOESShader, const char *fragmentShader)
 {
     Close();
     std::lock_guard<std::mutex> lck(mux);
+    programOES = CreateProgram(TYPE_OES, vertexShader, fragmentOESShader);
+    program2D = CreateProgram(TYPE_2D, vertexShader, fragmentShader);
+    return !(programOES == 0 || program2D == 0);
+}
 
+GLuint XShader::CreateProgram(TextureType type, const char *vertexShader, const char *fragmentShader) {
     //顶点和片元shader初始化
     //顶点shader初始化
     vsh = InitShader(vertexShader, GL_VERTEX_SHADER);
     if(vsh == 0){
-        XLOGE("Init", "InitShader GL_VERTEX_SHADER failed!");
-        return false;
+        XLOGE("CreateProgram", "InitShader GL_VERTEX_SHADER failed!");
+        return 0;
     }
 
-    XLOGE("Init", "InitShader GL_VERTEX_SHADER success!");
+    XLOGE("CreateProgram", "InitShader GL_VERTEX_SHADER success!");
 
     fsh = InitShader(fragmentShader, GL_FRAGMENT_SHADER);
 
     if(fsh == 0){
         XLOGE("Init", "InitShader GL_FRAGMENT_SHADER failed!");
-        return false;
+        return 0;
     }
-    XLOGE("Init", "InitShader GL_FRAGMENT_SHADER success!");
+    XLOGE("CreateProgram", "InitShader GL_FRAGMENT_SHADER success!");
 
 
     //创建渲染程序
     program = glCreateProgram();
     if(program == 0){
-        XLOGE("Init", "glCreateProgram failed！");
-        return false;
+        XLOGE("CreateProgram", "glCreateProgram failed！");
+        return 0;
     }
 
     //渲染程序中加入着色器代码
     glAttachShader(program, vsh);
     glAttachShader(program, fsh);
 
+    glDeleteShader(vsh);
+    glDeleteShader(fsh);
     //链接程序
     glLinkProgram(program);
     GLint status = 0;
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if(status != GL_TRUE){
-        XLOGE("Init", "glLinkProgram failed!");
-        return false;
+        XLOGE("CreateProgram", "glLinkProgram failed!");
+        return 0;
     }
     glUseProgram(program);
-    XLOGE("Init", "glLinkProgram success!");
+    XLOGE("CreateProgram", "glLinkProgram success!");
 
-
-    //加入三维顶点数据 两个三角形组成正方形
-    static float vers[] = {
-            1.0f,   -1.0f,  0.0f,
-            -1.0f,  -1.0f,  0.0f,
-            1.0f,   1.0f,   0.0f,
-            -1.0f,  1.0f,   0.0f,
-    };
-
-    GLuint  vpos = glGetAttribLocation(program, "vPosition");
+    GLuint  vpos = (GLuint)glGetAttribLocation(program, "vPosition");
     glEnableVertexAttribArray(vpos);
     //传递顶点
     glVertexAttribPointer(vpos, 3, GL_FLOAT, GL_FALSE, 12, vers);
 
     //加入材质坐标数据
-    static float txts[] = {
-            1.0f, 0.0f,//右下
-            0.0f,0.0f,
-            1.0f,1.0f,
-            0.0,1.0
-    };
     GLuint tex = (GLuint)glGetAttribLocation(program,"inputTextureCoordinate");
     glEnableVertexAttribArray(tex);
     glVertexAttribPointer(tex, 2, GL_FLOAT, GL_FALSE, 8, txts);
@@ -120,15 +123,36 @@ bool XShader::Init(const char *vertexShader, const char *fragmentShader)
     //设置纹理层
     glUniform1i(glGetUniformLocation(program, "s_texture"), 0); //对于纹理第1层
 
-    XLOGE("Init", "初始化Shader成功!");
-    return true;
+    static float mMatrix[16];
+    if (type == TYPE_OES) {
+        matrixSetRotateM(mMatrix, 180, 0.0f, 1.0f, 0.0f);
+        matrixRotateM(mMatrix, -90, 0.0f, 0.0f, 1.0f);
+    } else if (type == TYPE_2D) {
+        matrixSetIdentityM(mMatrix);
+    }
+    glUniformMatrix4fv(glGetUniformLocation(program, "uMVPMatrix"), 1, GL_FALSE, mMatrix);
+
+    XLOGE("CreateProgram", "初始化Shader成功!");
+
+    return program;
 }
 
 void XShader::Draw(TextureType type)
 {
     std::lock_guard<std::mutex> lck(mux);
-    if(!program) {
-        return;
+    if (type == TYPE_OES) {
+        if (programOES == 0) {
+            XLOGE("Draw", "programOES = %d", programOES);
+            XLOGE("Draw", "程序不对");
+            return;
+        }
+        glUseProgram(programOES);
+    } else if (type == TYPE_2D) {
+        if (program2D == 0) {
+            XLOGE("Draw", "程序不对");
+            return;
+        }
+        glUseProgram(program2D);
     }
     //三维绘制
     glDrawArrays(GL_TRIANGLE_STRIP, 0 ,4);
@@ -144,4 +168,9 @@ void XShader::GetTexture(int textureId, int width, int height, unsigned char *bu
 
     //替换纹理内容
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+}
+
+void XShader::GetTexture(unsigned int texId) {
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, texId);
 }

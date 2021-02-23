@@ -7,6 +7,7 @@
 #include <GLES2/gl2ext.h>
 #include "opengl/XEGL.h"
 #include "utils/XUtils.h"
+#include "utils/Xlog.h"
 #include "opengl/XTexture.h"
 
 AAssetManager *g_pAssetManager = nullptr;
@@ -22,24 +23,23 @@ Java_com_example_shortvideoapp_MainActivity_registerAssetManager(
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_shortvideoapp_svaView_InitView(JNIEnv *env, jobject, jobject surface) {
+Java_com_example_shortvideoapp_MainActivity_InitView(JNIEnv *env, jobject, jobject surface) {
     ANativeWindow *win = ANativeWindow_fromSurface(env, surface);
     const char *vertexShader = readAssetFile("vertex.glsl", g_pAssetManager);
-    const char *fragmentShader = readAssetFile("fragmentOES.glsl", g_pAssetManager);
-    XTexture::Get()->Init(win, vertexShader, fragmentShader);
-    glClearColor(1, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
-    XEGL::Get()->Draw();
+    const char *fragmentOESShader = readAssetFile("fragmentOES.glsl", g_pAssetManager);
+    const char *fragmentShader = readAssetFile("fragment2D.glsl", g_pAssetManager);
+    XTexture::Get()->Init(win, vertexShader, fragmentOESShader, fragmentShader);
 }
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_com_example_shortvideoapp_MainActivity_CreateTexture(JNIEnv *, jobject) {
-    return (jint)XTexture::Get()->CreateTexture();
+Java_com_example_shortvideoapp_MainActivity_CreateTextureOES(JNIEnv *, jobject) {
+    XLOGE("CreateTexture", "提前Create了");
+    return (jint)XTexture::Get()->CreateTextureOES();
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_shortvideoapp_MainActivity_render(JNIEnv *, jobject) {
-
+    XTexture::Get()->DrawOES();
 }
