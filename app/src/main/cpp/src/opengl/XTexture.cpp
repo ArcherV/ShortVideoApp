@@ -7,9 +7,7 @@
 #include "XEGL.h"
 #include "../utils/Xlog.h"
 #include "XShader.h"
-
-const int WIDTH = 720;
-const int HEIGHT = 1280;
+#include "../utils/XUtils.h"
 
 class CXTexture:public XTexture
 {
@@ -98,7 +96,6 @@ public:
         data.pts = ++num;
         Notify(data);
         XLOGE("DrawOES", "生产 %d", num);
-//        XLOGE("DrawOES", "%d", obss.size());
 
         XEGL::Get()->Draw();
     }

@@ -6,6 +6,12 @@
 #include <cstring>
 #include "XUtils.h"
 #include "Xlog.h"
+extern "C" {
+#include <libavutil/frame.h>
+};
+
+int WIDTH = 720;
+int HEIGHT = 1280;
 
 char *readAssetFile(const char *filename, AAssetManager *mgr) {
     if (mgr == nullptr) {
@@ -20,6 +26,42 @@ char *readAssetFile(const char *filename, AAssetManager *mgr) {
     XLOGE("readAssetFile", "numByte: %d, len: %d", numByte, len);
     AAsset_close(pAsset);
     return pBuffer;
+}
+
+void rgbToFrame(int width, int height, unsigned char *rgb, AVFrame *frame, int type) {
+    const int frameSize = width * height;
+    const int yuvType = (type & 0x10000) >> 16;
+    const int byteRgba = (type & 0x0F000) >> 12;
+    const int rShift = (type & 0x00F00) >> 8;
+    const int gShift = (type & 0x000F0) >> 4;
+    const int bShift = (type & 0x0000F);
+    const int uIndex = 0;
+    const int vIndex = yuvType; //yuvType为1表示YUV420p,为0表示420sp
+
+    int yIndex = 0;
+    int uvIndex[2] = {frameSize, frameSize + frameSize / 4};
+
+    unsigned char R, G, B, Y, U, V;
+    unsigned int index = 0;
+    for (unsigned int j = 0; j < height; j++) {
+        for (unsigned int i = 0; i < width; i++) {
+            index = j * width + i;
+
+            R = (rgb[index * byteRgba + rShift] & 0xFF);
+            G = (rgb[index * byteRgba + gShift] & 0xFF);
+            B = (rgb[index * byteRgba + bShift] & 0xFF);
+
+            Y = (y(R, G, B));
+            U = (u(R, G, B));
+            V = (v(R, G, B));
+
+            frame->data[0][j * frame->linesize[0] + i] = color(Y);
+            if ((j & 1) == 0 && (index & 1) == 0) {
+                frame->data[1][(j >> 1) * frame->linesize[1] + (i >> 1)] = color(U);
+                frame->data[2][(j >> 1) * frame->linesize[2] + (i >> 1)] = color(V);
+            }
+        }
+    }
 }
 
 void matrixSetIdentityM(float *m) {

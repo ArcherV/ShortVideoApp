@@ -16,10 +16,7 @@ enum
 struct XData {
     int type = 0;
     int pts = 0;
-    unsigned int texId;
-
     u_char *data = 0;
-    u_char *datas[8] = {0};
     int size = 0;
     bool isAudio = false;
     int width = 0;
