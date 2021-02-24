@@ -67,11 +67,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (!recording) {
                     recorder_button.setColorFilter(RUNNING);
                     startRecord();
+                    Toast.makeText(getApplicationContext(), "开始录制了", Toast.LENGTH_SHORT).show();
                 } else {
                     recorder_button.setColorFilter(0);
+                    stopRecord();
+                    Toast.makeText(getApplicationContext(), "停止录制了", Toast.LENGTH_SHORT).show();
                 }
                 recording = !recording;
-                Toast.makeText(getApplicationContext(), "开始录制了", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.play_button:
                 if (!playing) {
@@ -116,4 +118,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private native int CreateTextureOES();
     private native void render();
     private native void startRecord();
+    private native void stopRecord();
 }

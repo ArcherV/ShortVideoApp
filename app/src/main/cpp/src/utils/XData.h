@@ -15,7 +15,7 @@ enum
 
 struct XData {
     int type = 0;
-    int pts = 0;
+    int64_t pts = 0;
     u_char *data = 0;
     int size = 0;
     bool isAudio = false;

@@ -6,6 +6,8 @@
 #include "../utils/Xlog.h"
 
 void IEncode::Update(XData frame) {
+    if (!isRuning)
+        return;
     if (frame.isAudio != isAudio)
         return;
     while (!isExit) {

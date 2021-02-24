@@ -10,7 +10,7 @@
 
 class FFEncode : public IEncode {
 public:
-    bool Open(XParameter para) override;
+    bool Open() override;
 
     void Close() override;
 

@@ -21,7 +21,7 @@ extern "C" {
 
 class IEncode : public IObserver{
 public:
-    virtual bool Open(XParameter para) = 0;
+    virtual bool Open() = 0;
     virtual void Close() = 0;
     virtual void Clear() = 0;
 
