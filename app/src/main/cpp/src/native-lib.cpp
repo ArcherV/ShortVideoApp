@@ -5,16 +5,13 @@
 #include <android/asset_manager_jni.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-extern "C" {
-#include <libavcodec/jni.h>
-}
-#include "opengl/XEGL.h"
-#include "utils/XUtils.h"
-#include "utils/Xlog.h"
-#include "opengl/XTexture.h"
-#include "encode/IEncode.h"
-#include "encode/FFEncode.h"
-#include "app/IAppProxy.h"
+#include "XEGL.h"
+#include "XUtils.h"
+#include "Xlog.h"
+#include "XTexture.h"
+#include "IEncode.h"
+#include "FFEncode.h"
+#include "IAppProxy.h"
 
 AAssetManager *g_pAssetManager = nullptr;
 

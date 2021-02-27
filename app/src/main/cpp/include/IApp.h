@@ -6,8 +6,9 @@
 #define SHORTVIDEOAPP_IAPP_H
 
 
-#include "../thread/XThread.h"
-#include "../encode/IEncode.h"
+#include "XThread.h"
+#include "IEncode.h"
+#include "IMux.h"
 
 class IApp : public XThread {
 public:
@@ -18,6 +19,7 @@ public:
     virtual void Close();
 
     IEncode *vencode = 0;
+    IMux *muxer = 0;
 protected:
     void Main() override;
     IApp() {}

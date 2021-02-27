@@ -8,12 +8,12 @@
 #include <mutex>
 #include <vector>
 #include "XThread.h"
-#include "../utils/XData.h"
+#include "XData.h"
 
 class IObserver : public XThread {
 public:
     //观察者接收数据函数
-    virtual void Update(XData data) = 0;
+    virtual void Update(XData data) {};
 
     //主体函数 添加观察者(线程安全)
     void AddObs(IObserver *obs);

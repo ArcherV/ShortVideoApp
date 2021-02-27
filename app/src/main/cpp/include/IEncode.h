@@ -5,8 +5,8 @@
 #ifndef SHORTVIDEOAPP_IENCODE_H
 #define SHORTVIDEOAPP_IENCODE_H
 
-#include "../thread/IObserver.h"
-#include "../utils/XParameter.h"
+#include "IObserver.h"
+#include "XParameter.h"
 #include <list>
 extern "C" {
 #include <libavutil/avassert.h>

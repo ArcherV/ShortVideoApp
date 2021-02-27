@@ -3,8 +3,8 @@
 //
 
 #include "XShader.h"
-#include "../utils/Xlog.h"
-#include "../utils/XUtils.h"
+#include "Xlog.h"
+#include "XUtils.h"
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 

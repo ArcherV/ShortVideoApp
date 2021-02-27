@@ -3,15 +3,18 @@
 //
 
 #include "IAppBuidler.h"
-#include "../opengl/XTexture.h"
-#include "../app/IApp.h"
-#include "../utils/Xlog.h"
+#include "XTexture.h"
+#include "IApp.h"
+#include "Xlog.h"
 
 IApp *IAppBuidler::BuilderApp() {
     IApp *app = CreateApp();
+    IMux *muxer = CreateMux();
     IEncode *vencode = CreateEncode();
     XTexture::Get()->AddObs(vencode);
+    vencode->AddObs(muxer);
     app->vencode = vencode;
+    app->muxer = muxer;
 //    XLOGE("BuilderApp", "xxxxxxx");
     return app;
 }

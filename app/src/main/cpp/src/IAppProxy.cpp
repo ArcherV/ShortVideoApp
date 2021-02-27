@@ -3,8 +3,8 @@
 //
 
 #include "IAppProxy.h"
-#include "../builder/FFAppBuidler.h"
-#include "../opengl/XTexture.h"
+#include "FFAppBuidler.h"
+#include "XTexture.h"
 
 bool IAppProxy::Open(const char *path) {
     std::lock_guard<std::mutex> lck(mux);

@@ -12,9 +12,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags ""
-            }
-            ndk {
+                cppFlags "-std=c++11"
                 abiFilters "arm64-v8a"
             }
         }

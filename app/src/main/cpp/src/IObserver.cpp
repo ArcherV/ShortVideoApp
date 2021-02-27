@@ -3,8 +3,12 @@
 //
 
 #include "IObserver.h"
-#include "../utils/XData.h"
-#include "../utils/Xlog.h"
+#include "XData.h"
+#include "Xlog.h"
+
+extern "C" {
+#include <libavcodec/avcodec.h>
+}
 
 void IObserver::AddObs(IObserver *obs) {
     if (!obs) {
@@ -17,6 +21,7 @@ void IObserver::AddObs(IObserver *obs) {
 
 void IObserver::Notify(XData data) {
     std::lock_guard<std::mutex> lck(mux);
-    for (auto obs : obss)
+    for (auto obs : obss) {
         obs->Update(data);
+    }
 }

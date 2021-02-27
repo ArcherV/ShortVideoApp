@@ -6,12 +6,17 @@
 #include <cstring>
 #include "XUtils.h"
 #include "Xlog.h"
-extern "C" {
-#include <libavutil/frame.h>
-};
 
-int WIDTH = 720;
-int HEIGHT = 1280;
+const int WIDTH = 720;
+const int HEIGHT = 1280;
+const AVCodecID VCODEC_ID = AV_CODEC_ID_H264;
+const AVCodecID ACODEC_ID = AV_CODEC_ID_AAC;
+const int BIT_RATE = 5760000;
+const int FRAMERATE = 25;
+const int GOP_SIZE = 10;
+const int MAX_B_FRAMES = 1;
+const AVPixelFormat PIX_FMT = AV_PIX_FMT_YUV420P;
+const int PROFILE = FF_PROFILE_H264_BASELINE;
 
 char *readAssetFile(const char *filename, AAssetManager *mgr) {
     if (mgr == nullptr) {

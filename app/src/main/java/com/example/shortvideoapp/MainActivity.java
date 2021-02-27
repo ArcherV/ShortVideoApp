@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final int RUNNING = 0xFFFF0000;
     private static final String cameraId = "0";
-    private static final int PERMISSION_REQUEST_CAMERA = 1;
+    private static final int PERMISSION_REQUEST = 1;
 
     SurfaceView view = null;
     ImageButton recorder_button = null;
@@ -54,8 +54,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         registerAssetManager(getAssets());
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA }, PERMISSION_REQUEST_CAMERA);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[] {
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE },
+                    PERMISSION_REQUEST);
             return;
         }
     }

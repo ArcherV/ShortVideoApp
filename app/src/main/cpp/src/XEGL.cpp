@@ -3,7 +3,7 @@
 //
 
 #include "XEGL.h"
-#include "../utils/Xlog.h"
+#include "Xlog.h"
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <mutex>

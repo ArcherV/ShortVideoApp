@@ -3,12 +3,18 @@
 //
 
 #include "FFAppBuidler.h"
-#include "../encode/FFEncode.h"
-#include "../utils/Xlog.h"
+#include "FFEncode.h"
+#include "Xlog.h"
+#include "FFMux.h"
 
 IEncode *FFAppBuidler::CreateEncode() {
     IEncode *ffencode = new FFEncode();
     return ffencode;
+}
+
+IMux *FFAppBuidler::CreateMux() {
+    IMux *ffmux = new FFMux();
+    return ffmux;
 }
 
 IApp *FFAppBuidler::CreateApp() {

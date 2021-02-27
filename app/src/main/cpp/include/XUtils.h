@@ -6,9 +6,21 @@
 #define SHORTVIDEOAPP_XUTILS_H
 
 #include <android/asset_manager.h>
+extern "C" {
+#include <libavutil/frame.h>
+#include <libavcodec/avcodec.h>
+};
 
-extern int WIDTH;
-extern int HEIGHT;
+extern const int WIDTH;
+extern const int HEIGHT;
+extern const AVCodecID VCODEC_ID;
+extern const AVCodecID ACODEC_ID;
+extern const int BIT_RATE;
+extern const int FRAMERATE;
+extern const int GOP_SIZE;
+extern const int MAX_B_FRAMES;
+extern const AVPixelFormat PIX_FMT;
+extern const int PROFILE;
 
 struct AVFrame;
 

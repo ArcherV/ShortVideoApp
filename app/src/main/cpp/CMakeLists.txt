@@ -11,15 +11,9 @@ cmake_minimum_required(VERSION 3.4.1)
 # Gradle automatically packages shared libraries with your APK.
 include_directories("include")
 
-FILE (GLOB ALL_SOURCES "src/*.cpp" "src/*/*.cpp" )
-FILE (GLOB ALL_INCLUDES "src/*.h" "src/*/*.h" )
-
-SET (ALL_SRCS ${ALL_SOURCES} ${ALL_INCLUDES})
-
-#message("EXECUTE AGAIN!")
-
-#设置ffmpeg库所在路径的变量
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_GLAGS} -L${CMAKE_SOURCE_DIR}/libs/${ANDROID_ABI}")
+include_directories(${CMAKE_SOURCE_DIR}/include )
+link_directories(${CMAKE_SOURCE_DIR}/libs/${ANDROID_ABI})
+aux_source_directory(${CMAKE_SOURCE_DIR}/src SRCLIST)
 
 add_library( # Sets the name of the library.
              native-lib
@@ -28,7 +22,7 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
-             ${ALL_SRCS} )
+             ${SRCLIST} )
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

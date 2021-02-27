@@ -5,9 +5,9 @@
 #include <mutex>
 #include "XTexture.h"
 #include "XEGL.h"
-#include "../utils/Xlog.h"
+#include "Xlog.h"
 #include "XShader.h"
-#include "../utils/XUtils.h"
+#include "XUtils.h"
 
 class CXTexture:public XTexture
 {
@@ -95,7 +95,7 @@ public:
         data.height = HEIGHT;
         data.pts = ++num;
         Notify(data);
-        XLOGE("DrawOES", "生产 %d", num);
+//        XLOGE("DrawOES", "生产 %d", num);
 
         XEGL::Get()->Draw();
     }

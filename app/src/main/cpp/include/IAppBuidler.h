@@ -6,9 +6,10 @@
 #define SHORTVIDEOAPP_IAPPBUIDLER_H
 
 
-#include "../demux/IDemux.h"
-#include "../encode/IEncode.h"
-#include "../app/IApp.h"
+#include "IDemux.h"
+#include "IEncode.h"
+#include "IApp.h"
+#include "IMux.h"
 
 class IAppBuidler {
 public:
@@ -16,7 +17,7 @@ public:
 
 protected:
 //    virtual IDemux *CreateDemux() = 0;
-//    virtual IMux *CreateMux() = 0;
+    virtual IMux *CreateMux() = 0;
 //    virtual IDecode *CreateDecode() = 0;
     virtual IEncode *CreateEncode() = 0;
 //    virtual IResample *CreateResample() = 0;

@@ -3,9 +3,9 @@
 //
 
 #include "FFEncode.h"
-#include "../utils/XParameter.h"
-#include "../utils/Xlog.h"
-#include "../utils/XUtils.h"
+#include "XParameter.h"
+#include "Xlog.h"
+#include "XUtils.h"
 
 bool FFEncode::Open() {
     // 太太太重要了，需要注册这俩家伙
@@ -16,7 +16,7 @@ bool FFEncode::Open() {
 
     Close();
     //1 查找解码器
-    AVCodec *cd = avcodec_find_encoder(AV_CODEC_ID_H264);;
+    AVCodec *cd = avcodec_find_encoder(VCODEC_ID);;
     if (!cd) {
         XLOGE("Open", "avcodec_find_encoder failed");
         return false;
@@ -27,16 +27,16 @@ bool FFEncode::Open() {
     //2 创建解码上下文 并复制参数
     codec = avcodec_alloc_context3(cd);
 
-    codec->codec_id = AV_CODEC_ID_H264;
-    codec->bit_rate = 5760000;
+    codec->codec_id = VCODEC_ID;
+    codec->bit_rate = BIT_RATE;
     codec->width = WIDTH;
     codec->height = HEIGHT;
-    codec->time_base = (AVRational){1, 25};
-    codec->framerate = (AVRational){25, 1};
-    codec->gop_size = 10;
-    codec->max_b_frames = 1;
-    codec->pix_fmt = AV_PIX_FMT_YUV420P;
-    codec->profile = FF_PROFILE_H264_BASELINE;
+    codec->time_base = (AVRational){1, FRAMERATE};
+    codec->framerate = (AVRational){FRAMERATE, 1};
+    codec->gop_size = GOP_SIZE;
+    codec->max_b_frames = MAX_B_FRAMES;
+    codec->pix_fmt = PIX_FMT;
+    codec->profile = PROFILE;
     // TODO：多线程FFMpeg
 //    codec->thread_count = 8;
 
@@ -122,11 +122,19 @@ XData FFEncode::RecvPacket() {
     int re = avcodec_receive_packet(codec, packet);
     if (re != 0)
         return XData();
-    XLOGE("av_frame_get_buffer", "Write packet %ld (size=%d)", packet->pts, packet->size);
+    XLOGE("RecvPacket", "Packet pts %ld (size=%d)", packet->pts, packet->size);
+//    XLOGE("RecvPacket", "data size is %lu pack size is %lu", sizeof(data.data), sizeof(packet));
+    AVPacket tmp = {0};
+    av_packet_ref(&tmp, packet);
+//    XLOGE("RecvPacket", "%ld", tmp.pts);
     XData data;
+    data.type = AVPACKET_TYPE;
     data.width = codec->width;
     data.height = codec->height;
     data.pts = packet->pts;
-    av_packet_unref(packet);
+    data.data = (u_char *)&tmp;
+    data.size = packet->size;
+    XLOGE("RecvPacket", "Packet pts %ld", ((AVPacket *)data.data)->pts);
+    XLOGE("RecvPacket", "pointer %ld", data.data);
     return data;
 }

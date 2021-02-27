@@ -3,7 +3,7 @@
 //
 
 #include "IEncode.h"
-#include "../utils/Xlog.h"
+#include "Xlog.h"
 
 void IEncode::Update(XData frame) {
     if (!isRuning)
@@ -37,9 +37,10 @@ void IEncode::Main() {
         if (SendFrame(frame)) {
             while (!isExit) {
                 XData packet = RecvPacket();
-                XLOGE("Main", "消费 %d", packet.pts);
                 if (!packet.data)
                     break;
+                XLOGE("Main", "Packet pts %ld", ((AVPacket *)packet.data)->pts);
+                XLOGE("Main", "pointer %ld", packet.data);
                 Notify(packet);
             }
         }

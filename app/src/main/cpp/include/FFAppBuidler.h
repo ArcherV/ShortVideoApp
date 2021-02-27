@@ -7,7 +7,7 @@
 
 
 #include "IAppBuidler.h"
-#include "../app/IApp.h"
+#include "IApp.h"
 
 class FFAppBuidler : public IAppBuidler {
 public:
@@ -18,6 +18,7 @@ public:
 
 protected:
     FFAppBuidler() {};
+    virtual IMux *CreateMux();
     virtual IEncode *CreateEncode();
 //    virtual IDemux *CreateDemux();
 //    virtual IDecode *CreateDecode();

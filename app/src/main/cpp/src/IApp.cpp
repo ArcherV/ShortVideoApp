@@ -3,8 +3,8 @@
 //
 
 #include "IApp.h"
-#include "../utils/Xlog.h"
-#include "../opengl/XTexture.h"
+#include "Xlog.h"
+#include "XTexture.h"
 
 IApp *IApp::Get() {
     static IApp app;
@@ -12,9 +12,14 @@ IApp *IApp::Get() {
 }
 
 bool IApp::Open(const char *path) {
+    Close();
+    if(!muxer || !muxer->Open(path)){
+        XLOGE("Open", "mux->Open %s failed!", path);
+        return false;
+    }
     //解码 如果解封装之后是原始数据解码可能不需要
     if(!vencode || !vencode->Open()){
-        XLOGE("vdecode->Open %s failed!",path);
+        XLOGE("Open", "vdecode->Open failed!");
         return false;
     }
     return true;
@@ -22,6 +27,8 @@ bool IApp::Open(const char *path) {
 
 bool IApp::Start() {
     std::lock_guard<std::mutex> lck(mux);
+    if (muxer)
+        muxer->Start();
     if (vencode)
         vencode->Start();
     XThread::Start();
@@ -35,6 +42,11 @@ void IApp::InitView(void *win, const char *vertexShader, const char *fragmentOES
 void IApp::Close() {
     std::lock_guard<std::mutex> lck(mux);
     XThread::Stop();
+    if (muxer) {
+        muxer->Stop();
+        muxer->Clear();
+        muxer->Close();
+    }
     if (vencode)
         vencode->Stop();
     if(vencode)
