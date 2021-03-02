@@ -26,7 +26,7 @@ bool FFEncode::Open() {
     std::lock_guard<std::mutex> lck(mux);
     //2 创建解码上下文 并复制参数
     codec = avcodec_alloc_context3(cd);
-
+    codec->codec_type = AVMEDIA_TYPE_VIDEO;
     codec->codec_id = VCODEC_ID;
     codec->bit_rate = BIT_RATE;
     codec->width = WIDTH;
@@ -50,18 +50,21 @@ bool FFEncode::Open() {
     }
 
     frame = av_frame_alloc();
-    if (!frame) {
-        XLOGE("Open", "Could not allocate video frame");
-        return false;
-    }
+    tmp = av_frame_alloc();
 
-    frame->format = codec->pix_fmt;
-    frame->width = codec->width;
-    frame->height = codec->height;
+    frame->format = tmp->format = codec->pix_fmt;
+    frame->width = tmp->width = codec->width;
+    frame->height = tmp->height = codec->height;
 
     re = av_frame_get_buffer(frame, 32);
     if (re < 0) {
         XLOGE("Open", "Could not allocate the video frame data");
+        return false;
+    }
+
+    re = av_frame_get_buffer(tmp, 32);
+    if (re < 0) {
+        XLOGE("Open", "Could not allocate the video tmp frame data");
         return false;
     }
 
@@ -123,18 +126,28 @@ XData FFEncode::RecvPacket() {
     if (re != 0)
         return XData();
     XLOGE("RecvPacket", "Packet pts %ld (size=%d)", packet->pts, packet->size);
-//    XLOGE("RecvPacket", "data size is %lu pack size is %lu", sizeof(data.data), sizeof(packet));
-    AVPacket tmp = {0};
-    av_packet_ref(&tmp, packet);
-//    XLOGE("RecvPacket", "%ld", tmp.pts);
+    // 不能写成AVPacket tmp = {0};这种会有很多错误
+    AVPacket *tmp = av_packet_alloc();
+    av_packet_ref(tmp, packet);
     XData data;
     data.type = AVPACKET_TYPE;
     data.width = codec->width;
     data.height = codec->height;
     data.pts = packet->pts;
-    data.data = (u_char *)&tmp;
+    data.data = (u_char *)tmp;
     data.size = packet->size;
-    XLOGE("RecvPacket", "Packet pts %ld", ((AVPacket *)data.data)->pts);
-    XLOGE("RecvPacket", "pointer %ld", data.data);
     return data;
+}
+
+XParameter FFEncode::GetPara() {
+    std::lock_guard<std::mutex> lck(mux);
+    if (!codec) {
+        XLOGE("GetPara", "GetPara failed! ic is NULL!");
+        return XParameter();
+    }
+    XParameter para;
+    para.para = avcodec_parameters_alloc();
+    avcodec_parameters_from_context(para.para, codec);
+    para.time_base = &codec->time_base;
+    return para;
 }

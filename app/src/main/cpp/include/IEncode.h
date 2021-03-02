@@ -30,6 +30,8 @@ public:
     //从线程中获取解码结果 再次调用会复用上次空间 线程不安全
     virtual  XData RecvPacket() = 0;
 
+    virtual XParameter GetPara() = 0;
+
     //由主体notify的数据 阻塞
     virtual  void Update(XData frame);
 

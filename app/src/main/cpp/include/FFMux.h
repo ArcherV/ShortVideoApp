@@ -15,7 +15,7 @@ class FFMux : public IMux {
 public:
     FFMux();
 
-    virtual bool Open(const char *url);
+    virtual bool Open(const char *url, XParameter para);
 
     virtual void Close();
 

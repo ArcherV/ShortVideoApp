@@ -13,13 +13,13 @@ IApp *IApp::Get() {
 
 bool IApp::Open(const char *path) {
     Close();
-    if(!muxer || !muxer->Open(path)){
-        XLOGE("Open", "mux->Open %s failed!", path);
-        return false;
-    }
     //解码 如果解封装之后是原始数据解码可能不需要
     if(!vencode || !vencode->Open()){
         XLOGE("Open", "vdecode->Open failed!");
+        return false;
+    }
+    if(!muxer || !muxer->Open(path, vencode->GetPara())){
+        XLOGE("Open", "mux->Open %s failed!", path);
         return false;
     }
     return true;

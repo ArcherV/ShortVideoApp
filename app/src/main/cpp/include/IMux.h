@@ -16,7 +16,7 @@ public:
     virtual void Update(XData data) override;
 
     //打开文件， 或者流媒体 rtmp http rtsp
-    virtual bool Open(const char *url) = 0;
+    virtual bool Open(const char *url, XParameter para) = 0;
 
     virtual void Close() = 0;
 

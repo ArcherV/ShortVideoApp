@@ -18,6 +18,8 @@ public:
 
     bool SendFrame(XData para) override;
 
+    XParameter GetPara() override;
+
     XData RecvPacket() override;
 
 private:

@@ -14,8 +14,6 @@ void IMux::Update(XData pkt) {
         std::unique_lock<std::mutex> lck(packetsMutex);
         if (packets.size() < maxList) {
             packets.push_back(pkt);
-            XLOGE("Update", "Packet pts %ld", ((AVPacket *)pkt.data)->pts);
-            XLOGE("Update", "pointer %ld", pkt.data);
             condition.notify_one();
             break;
         }
@@ -42,13 +40,9 @@ void IMux::Main()
         condition.wait(lck, [this] {
             return !packets.empty();
         });
-//        XData packet = packets.front();
         XData packet = packets.front();
-        XLOGE("Main", "Packet pts %ld", ((AVPacket *)packet.data)->pts);
-//        XLOGE("Main", "Packet pointer %ld", packet.data);
-//        XLOGE("Main", "Packet xxx %ld", (AVPacket *)packet.data);
         packets.pop_front();
 
-//        Write(packet);
+        Write(packet);
     }
 }

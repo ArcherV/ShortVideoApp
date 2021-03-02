@@ -39,8 +39,6 @@ void IEncode::Main() {
                 XData packet = RecvPacket();
                 if (!packet.data)
                     break;
-                XLOGE("Main", "Packet pts %ld", ((AVPacket *)packet.data)->pts);
-                XLOGE("Main", "pointer %ld", packet.data);
                 Notify(packet);
             }
         }

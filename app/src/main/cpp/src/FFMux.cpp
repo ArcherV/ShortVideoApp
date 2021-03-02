@@ -23,38 +23,52 @@ FFMux::FFMux() {
     }
 }
 
-bool FFMux::Open(const char *url) {
+bool FFMux::Open(const char *url, XParameter para) {
     Close();
     std::lock_guard<std::mutex> lck(mux);
     int re = avformat_alloc_output_context2(&ic, nullptr, nullptr, url);
     if (re != 0) {
         char buf[1024] = {0};
         av_strerror(re, buf, sizeof(buf));
-        XLOGE("Open", "FFMux open %s failed!", url);
+        XLOGE("FFMux::Open", "FFMux open %s failed! %s", url, buf);
         return false;
     }
-    XLOGE("Open", "FFMux open %s success!", url);
+    XLOGE("FFMux::Open", "FFMux open %s success!", url);
     fmt = ic->oformat;
-//    XLOGE("Open", "Context is null ? %s", ic == nullptr ? "Yes" : "No");
-    AVStream *stream = avformat_new_stream(ic, nullptr);
-//    XLOGE("Open", "stream is null ? %s", stream == nullptr ? "Yes" : "No");
+    stream = avformat_new_stream(ic, nullptr);
     if (!stream) {
-        XLOGE("Open", "Stream open %s failed!", url);
+        XLOGE("FFMux::Open", "Stream open %s failed!", url);
         return false;
     }
-    stream->id = 0;
-    stream->codecpar->width = WIDTH;
-    stream->codecpar->height = HEIGHT;
-    stream->time_base = (AVRational){1, FRAMERATE};
-    stream->index = 0;
-    XLOGE("Open", "Stream is null %d", stream == nullptr);
+    stream->id = stream->index = 0;
+    avcodec_parameters_copy(stream->codecpar, para.para);
+
+    if (!(fmt->flags & AVFMT_NOFILE)) {
+        int ret = avio_open(&ic->pb, url, AVIO_FLAG_WRITE);
+        if (ret < 0) {
+            XLOGE("FFMux::Open", "Could not open '%s': %s", url, av_err2str(ret));
+            return false;
+        }
+    }
+    AVDictionary* opt = nullptr;
+    av_dict_set_int(&opt, "video_track_timescale", 25, 0);
+    int ret = avformat_write_header(ic, &opt);
+    if (ret < 0) {
+        XLOGE("FFMux::Open", "Error occurred when opening output file: %s", av_err2str(ret));
+        return false;
+    }
     return true;
 }
 
 void FFMux::Close() {
     std::lock_guard<std::mutex> lck(mux);
-    if (ic)
-        avformat_close_input(&ic);
+    if (ic) {
+        av_write_trailer(ic);
+        if (!(fmt->flags & AVFMT_NOFILE))
+            /* Close the output file. */
+            avio_closep(&ic->pb);
+        avformat_free_context(ic);
+    }
 }
 
 XParameter FFMux::GetVPara() {
@@ -102,10 +116,7 @@ void FFMux::Write(XData pkt) {
     if(pkt.size <= 0 || !pkt.data)
         return;
     std::lock_guard<std::mutex> lck(mux);
-//    ((AVPacket *)pkt.data)->stream_index = stream->index;
-    XLOGE("Write", "Packet pts %ld", ((AVPacket *)pkt.data)->pts);
-
+    ((AVPacket *)pkt.data)->stream_index = stream->index;
     av_interleaved_write_frame(ic, (AVPacket *)pkt.data);
-    // 一旦使用av_packet_unref就会释放掉packet的内存空间
     av_packet_unref((AVPacket *)pkt.data);
 }
