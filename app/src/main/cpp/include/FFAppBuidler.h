@@ -20,6 +20,7 @@ protected:
     FFAppBuidler() {};
     virtual IMux *CreateMux();
     virtual IEncode *CreateEncode();
+    virtual void CreateEnv() override ;
 //    virtual IDemux *CreateDemux();
 //    virtual IDecode *CreateDecode();
 //    virtual IResample *CreateResample();

@@ -40,6 +40,10 @@ GLuint IAppProxy::CreateTextureOES() {
     return XTexture::Get()->CreateTextureOES();
 }
 
+void IAppProxy::CreateTexture() {
+    XTexture::Get()->CreateTexture();
+}
+
 void IAppProxy::Render() {
     XTexture::Get()->DrawOES();
 }

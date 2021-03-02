@@ -18,6 +18,7 @@ public:
 
     void Init();
     GLuint CreateTextureOES();
+    void CreateTexture();
     void Render();
     virtual bool Open(const char *path);
     virtual bool Start();

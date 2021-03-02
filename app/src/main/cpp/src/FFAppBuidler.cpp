@@ -20,3 +20,11 @@ IMux *FFAppBuidler::CreateMux() {
 IApp *FFAppBuidler::CreateApp() {
     return IApp::Get();
 }
+
+void FFAppBuidler::CreateEnv() {
+    // 太太太重要了，需要注册这俩家伙
+    //注册所有封装器
+    av_register_all();
+    //注册所有的解码器
+    avcodec_register_all();
+}

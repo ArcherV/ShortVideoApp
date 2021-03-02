@@ -13,8 +13,6 @@ struct AVStream;
 
 class FFMux : public IMux {
 public:
-    FFMux();
-
     virtual bool Open(const char *url, XParameter para);
 
     virtual void Close();
@@ -32,7 +30,6 @@ private:
     AVOutputFormat *fmt = 0;
     AVStream *stream = 0;
     std::mutex mux;
-    std::condition_variable condition;
     int audioStream = 1;
     int videoStream = 0;
 };

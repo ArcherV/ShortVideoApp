@@ -45,6 +45,7 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_com_example_shortvideoapp_MainActivity_CreateTextureOES(JNIEnv *, jobject) {
     XLOGE("CreateTexture", "提前Create了");
+    IAppProxy::Get()->CreateTexture();
     return (jint)IAppProxy::Get()->CreateTextureOES();
 }
 

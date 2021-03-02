@@ -10,19 +10,6 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-FFMux::FFMux() {
-    static bool isFirst = true;
-    if (isFirst) {
-        isFirst = false;
-        //注册所有封装器
-        av_register_all();
-        //注册所有的解码器
-        avcodec_register_all();
-
-        XLOGE("FFMux", "Register ffmpeg!");
-    }
-}
-
 bool FFMux::Open(const char *url, XParameter para) {
     Close();
     std::lock_guard<std::mutex> lck(mux);

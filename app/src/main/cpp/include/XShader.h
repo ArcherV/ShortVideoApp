@@ -21,7 +21,7 @@ public:
     //获取材质并映射到内存
     virtual void GetTexture(int textureId, int width, int height, unsigned char *buf);
     virtual void GetTexture(unsigned int texId);
-    virtual void Draw(TextureType type);
+    virtual void Draw(TextureType type, float *matrix);
 protected:
     virtual GLuint CreateProgram(TextureType, const char *, const char *);
 

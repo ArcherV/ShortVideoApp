@@ -9,6 +9,7 @@
 
 IApp *IAppBuidler::BuilderApp() {
     IApp *app = CreateApp();
+    CreateEnv();
     IMux *muxer = CreateMux();
     IEncode *vencode = CreateEncode();
     XTexture::Get()->AddObs(vencode);

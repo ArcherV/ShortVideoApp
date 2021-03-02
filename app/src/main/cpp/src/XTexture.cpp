@@ -36,6 +36,10 @@ public:
             return false;
         }
         sh.Init(vertex, fragmentOES, fragment);
+        matrixSetIdentityM(matrix1);
+//        matrixSetIdentityM(matrix2);
+        matrixSetRotateM(matrix2, 90, 0.0f, 1.0f, 0.0f);
+        matrixRotateM(matrix2, 0, 0.0f, 0.0f, 1.0f);
         pixs_buffer = new u_char[WIDTH * HEIGHT * 4];
         num = 0;
         return true;
@@ -47,7 +51,7 @@ public:
             glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
             glGenTextures(1, &texture2D);
             glBindTexture(GL_TEXTURE_2D, texture2D);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 720, 1280, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -71,37 +75,35 @@ public:
         return textureOES;
     }
 
-    virtual void Draw(unsigned char *data[], int width, int height, TextureType type) override
-    {
-        std::lock_guard<std::mutex> lck(mux);
-
-        sh.GetTexture(texture2D, width, height, data[0]);        //Y
-
-        sh.Draw(type);
-        XEGL::Get()->Draw();
-    }
-
     void DrawOES() override {
         std::lock_guard<std::mutex> lck(mux);
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        sh.GetTexture(textureOES);
+        sh.Draw(TYPE_OES, nullptr);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        sh.GetTexture(textureOES);        //Y
+        glBindTexture(GL_TEXTURE_2D, texture2D);
+        sh.Draw(TYPE_2D, matrix1);
 
-        sh.Draw(TYPE_OES);
+        XEGL::Get()->Draw();
 
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        sh.Draw(TYPE_2D, matrix2);
         glReadPixels(0, 0, WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, pixs_buffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
         XData data;
         data.Alloc(WIDTH * HEIGHT * 4, pixs_buffer);
         data.width = WIDTH;
         data.height = HEIGHT;
         data.pts = ++num;
         Notify(data);
-//        XLOGE("DrawOES", "生产 %d", num);
-
-        XEGL::Get()->Draw();
     }
 
 private:
     XShader sh;
+    float matrix1[16];
+    float matrix2[16];
     int num;
     std::mutex mux;
 };

@@ -8,12 +8,6 @@
 #include "XUtils.h"
 
 bool FFEncode::Open() {
-    // 太太太重要了，需要注册这俩家伙
-    //注册所有封装器
-    av_register_all();
-    //注册所有的解码器
-    avcodec_register_all();
-
     Close();
     //1 查找解码器
     AVCodec *cd = avcodec_find_encoder(VCODEC_ID);;
@@ -50,21 +44,14 @@ bool FFEncode::Open() {
     }
 
     frame = av_frame_alloc();
-    tmp = av_frame_alloc();
 
-    frame->format = tmp->format = codec->pix_fmt;
-    frame->width = tmp->width = codec->width;
-    frame->height = tmp->height = codec->height;
+    frame->format = codec->pix_fmt;
+    frame->width = codec->width;
+    frame->height = codec->height;
 
     re = av_frame_get_buffer(frame, 32);
     if (re < 0) {
         XLOGE("Open", "Could not allocate the video frame data");
-        return false;
-    }
-
-    re = av_frame_get_buffer(tmp, 32);
-    if (re < 0) {
-        XLOGE("Open", "Could not allocate the video tmp frame data");
         return false;
     }
 

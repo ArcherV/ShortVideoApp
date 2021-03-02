@@ -34,17 +34,10 @@ char *readAssetFile(const char *filename, AAssetManager *mgr) {
 }
 
 void rgbToFrame(int width, int height, unsigned char *rgb, AVFrame *frame, int type) {
-    const int frameSize = width * height;
-    const int yuvType = (type & 0x10000) >> 16;
     const int byteRgba = (type & 0x0F000) >> 12;
     const int rShift = (type & 0x00F00) >> 8;
     const int gShift = (type & 0x000F0) >> 4;
     const int bShift = (type & 0x0000F);
-    const int uIndex = 0;
-    const int vIndex = yuvType; //yuvType为1表示YUV420p,为0表示420sp
-
-    int yIndex = 0;
-    int uvIndex[2] = {frameSize, frameSize + frameSize / 4};
 
     unsigned char R, G, B, Y, U, V;
     unsigned int index = 0;

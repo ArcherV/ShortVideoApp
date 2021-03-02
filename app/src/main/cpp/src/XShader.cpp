@@ -127,8 +127,6 @@ GLuint XShader::CreateProgram(TextureType type, const char *vertexShader, const 
     if (type == TYPE_OES) {
         matrixSetRotateM(mMatrix, 180, 0.0f, 1.0f, 0.0f);
         matrixRotateM(mMatrix, -90, 0.0f, 0.0f, 1.0f);
-    } else if (type == TYPE_2D) {
-        matrixSetIdentityM(mMatrix);
     }
     glUniformMatrix4fv(glGetUniformLocation(program, "uMVPMatrix"), 1, GL_FALSE, mMatrix);
 
@@ -137,7 +135,7 @@ GLuint XShader::CreateProgram(TextureType type, const char *vertexShader, const 
     return program;
 }
 
-void XShader::Draw(TextureType type)
+void XShader::Draw(TextureType type, float *matrix)
 {
     std::lock_guard<std::mutex> lck(mux);
     if (type == TYPE_OES) {
@@ -153,6 +151,7 @@ void XShader::Draw(TextureType type)
             return;
         }
         glUseProgram(program2D);
+        glUniformMatrix4fv(glGetUniformLocation(program, "uMVPMatrix"), 1, GL_FALSE, matrix);
     }
     //三维绘制
     glDrawArrays(GL_TRIANGLE_STRIP, 0 ,4);
