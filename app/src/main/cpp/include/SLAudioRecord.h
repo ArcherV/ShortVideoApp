@@ -37,13 +37,11 @@ private:
     SLObjectItf recorderObject;
     SLRecordItf recorderInterface;
 
-    SLObjectItf outputMixObject;
 
     SLAndroidSimpleBufferQueueItf androidBufferQueueItf;
 
     SLDataLocator_AndroidSimpleBufferQueue queue;
     SLDataFormat_PCM pcmFormat;
-    SLDataLocator_OutputMix outputMix;      //混音器数据描述
     SLDataLocator_IODevice ioDevice;        //io设备描述
 
     SLDataSource  source;           //音频数据来源的信息

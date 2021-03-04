@@ -28,7 +28,7 @@ void IAppProxy::Close() {
 
 bool IAppProxy::IsPause() {
     std::lock_guard<std::mutex> lck(mux);
-    app->IsPause();
+    return app->IsPause();
 }
 
 void IAppProxy::Init() {

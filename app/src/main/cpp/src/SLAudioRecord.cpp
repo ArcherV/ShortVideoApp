@@ -6,16 +6,17 @@
 #include "SLAudioRecord.h"
 
 void openSLCallBack(SLAndroidSimpleBufferQueueItf, void *t) {
-    XLOGE("openSLCallBack", "bufferQueueCallback");
     ((SLAudioRecord *) t)->queueCallBack();
 }
 
 void SLAudioRecord::queueCallBack() {
     std::lock_guard<std::mutex> lck(mux);
     recording = true;
+    condition.notify_one();
 }
 
 bool SLAudioRecord::StartRecord() {
+    XLOGE("SLAudioRecord::StartRecord", "Start recording");
     buffer = new u_char[BUFFER_SIZE * sizeof(short)];
     openSLInit();
     recorderInit();
@@ -27,6 +28,7 @@ XData SLAudioRecord::Read() {
                                       BUFFER_SIZE * sizeof(short));
     XData data;
     data.Alloc(BUFFER_SIZE * sizeof(short), buffer);
+    data.isAudio = true;
     return data;
 }
 
@@ -44,7 +46,6 @@ void SLAudioRecord::openSLInit() {
     engineObject = nullptr;
     recorderInterface = nullptr;
     recorderObject = nullptr;
-    outputMixObject = nullptr;
 
     slCreateEngine(&engineObject, 0, nullptr, 0, nullptr, nullptr);
 
@@ -98,6 +99,7 @@ void SLAudioRecord::recorderInit() {
     ///Recorder/////
     SLInterfaceID id[] = {SL_IID_ANDROIDSIMPLEBUFFERQUEUE};
     SLboolean required[] = {SL_BOOLEAN_TRUE};
+    int re;
 
     (*engineInterface)->CreateAudioRecorder(engineInterface, &recorderObject, &source, &sink, 1, id,
                                             required);
@@ -106,12 +108,21 @@ void SLAudioRecord::recorderInit() {
     //Register
     (*recorderObject)->GetInterface(recorderObject, SL_IID_ANDROIDSIMPLEBUFFERQUEUE,
                                     &androidBufferQueueItf);
-
     (*androidBufferQueueItf)->RegisterCallback(androidBufferQueueItf, openSLCallBack, this);
 
     //start recorder
     (*recorderObject)->GetInterface(recorderObject, SL_IID_RECORD, &recorderInterface);
-    (*recorderInterface)->SetRecordState(recorderInterface, SL_RECORDSTATE_RECORDING);
+    re = (*recorderInterface)->SetRecordState(recorderInterface, SL_RECORDSTATE_RECORDING);
+
+    if (re != SL_RESULT_SUCCESS) {
+        XLOGE("SLAudioRecord::recorderInit", "SetRecordState failed!");
+    }
+    //6 在设置完录制状态后一定需要先Enqueue一次，这样的话才会开始采集回调
+    re = (*androidBufferQueueItf)->Enqueue(androidBufferQueueItf, buffer,
+                                           BUFFER_SIZE * sizeof(short));
+    if (re != SL_RESULT_SUCCESS) {
+        XLOGE("SLAudioRecord::recorderInit", "Enqueue failed!");
+    }
 }
 
 void SLAudioRecord::Clear() {

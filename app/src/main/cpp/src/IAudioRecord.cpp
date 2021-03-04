@@ -2,6 +2,7 @@
 // Created by ArcherV on 2021-03-04.
 //
 
+#include "Xlog.h"
 #include "IAudioRecord.h"
 
 void IAudioRecord::Main() {
@@ -14,6 +15,7 @@ void IAudioRecord::Main() {
         condition.wait(lck, [this] {
             return recording;
         });
+        recording = false;
         XData data = Read();
         Notify(data);
     }
