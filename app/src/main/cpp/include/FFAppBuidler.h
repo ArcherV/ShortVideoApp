@@ -19,6 +19,7 @@ public:
 protected:
     FFAppBuidler() {};
     virtual IMux *CreateMux();
+    virtual IAudioRecord *CreateAudioRecord();
     virtual IEncode *CreateEncode();
 //    virtual IDemux *CreateDemux();
 //    virtual IDecode *CreateDecode();

@@ -13,7 +13,10 @@ IApp *IApp::Get() {
 
 bool IApp::Open(const char *path) {
     Close();
-    //解码 如果解封装之后是原始数据解码可能不需要
+    if (!audioRecord || !audioRecord->StartRecord()) {
+        XLOGE("Open", "audioRecord->Open failed!");
+        return false;
+    }
     if(!vencode || !vencode->Open()){
         XLOGE("Open", "vdecode->Open failed!");
         return false;
@@ -27,6 +30,8 @@ bool IApp::Open(const char *path) {
 
 bool IApp::Start() {
     std::lock_guard<std::mutex> lck(mux);
+    if (audioRecord)
+        audioRecord->Start();
     if (muxer)
         muxer->Start();
     if (vencode)
@@ -53,6 +58,11 @@ void IApp::Close() {
         vencode->Clear();
     if(vencode)
         vencode->Close();
+    if (audioRecord) {
+        audioRecord->Stop();
+        audioRecord->Clear();
+        audioRecord->Close();
+    }
 }
 
 void IApp::Main() {
