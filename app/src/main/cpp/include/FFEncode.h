@@ -10,6 +10,10 @@
 
 class FFEncode : public IEncode {
 public:
+    FFEncode(bool isAudio) {
+        this->isAudio = isAudio;
+    }
+
     bool Open() override;
 
     void Close() override;

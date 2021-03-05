@@ -17,6 +17,8 @@ extern const AVCodecID VCODEC_ID;
 extern const AVCodecID ACODEC_ID;
 extern const int BIT_RATE;
 extern const int FRAMERATE;
+extern const int SAMPLE_RATE;
+extern const int AUDIO_BIT_RATE;
 extern const int GOP_SIZE;
 extern const int MAX_B_FRAMES;
 extern const AVPixelFormat PIX_FMT;

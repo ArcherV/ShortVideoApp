@@ -20,6 +20,7 @@ public:
     virtual void Close();
 
     IAudioRecord *audioRecord = 0;
+    IEncode *aencode = 0;
     IEncode *vencode = 0;
     IMux *muxer = 0;
 protected:

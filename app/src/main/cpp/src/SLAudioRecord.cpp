@@ -17,6 +17,7 @@ void SLAudioRecord::queueCallBack() {
 
 bool SLAudioRecord::StartRecord() {
     XLOGE("SLAudioRecord::StartRecord", "Start recording");
+    num = 0;
     buffer = new u_char[BUFFER_SIZE * sizeof(short)];
     openSLInit();
     recorderInit();
@@ -26,9 +27,11 @@ bool SLAudioRecord::StartRecord() {
 XData SLAudioRecord::Read() {
     (*androidBufferQueueItf)->Enqueue(androidBufferQueueItf, buffer,
                                       BUFFER_SIZE * sizeof(short));
+
     XData data;
     data.Alloc(BUFFER_SIZE * sizeof(short), buffer);
     data.isAudio = true;
+    data.pts = ++num;
     return data;
 }
 

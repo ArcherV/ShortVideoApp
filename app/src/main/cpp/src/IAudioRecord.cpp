@@ -17,6 +17,7 @@ void IAudioRecord::Main() {
         });
         recording = false;
         XData data = Read();
+//        XLOGE("IAudioRecord::Main", "Size %04d Byte %d", data.size, data.data[0]);
         Notify(data);
     }
 }

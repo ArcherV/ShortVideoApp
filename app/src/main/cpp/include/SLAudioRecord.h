@@ -7,6 +7,7 @@
 
 
 #include "IAudioRecord.h"
+#include "XUtils.h"
 extern "C" {
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
@@ -48,9 +49,9 @@ private:
     SLDataSink  sink;               //音频数据输出信息
 
     u_char *buffer;
+    int num;
 
     const SLuint32 CHANNELS = 1;
-    const int SAMPLE_RATE = 44100;
     const unsigned int PERIOD_TIME = 20;  //周期20ms
     const unsigned int FRAME_SIZE = SAMPLE_RATE * PERIOD_TIME / 1000;
     const unsigned int BUFFER_SIZE = FRAME_SIZE * CHANNELS;

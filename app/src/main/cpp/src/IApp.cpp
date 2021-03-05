@@ -17,6 +17,10 @@ bool IApp::Open(const char *path) {
         XLOGE("Open", "audioRecord->Open failed!");
         return false;
     }
+    if(!aencode || !aencode->Open()){
+        XLOGE("Open", "aencode->Open failed!");
+        return false;
+    }
     if(!vencode || !vencode->Open()){
         XLOGE("Open", "vdecode->Open failed!");
         return false;
@@ -34,6 +38,8 @@ bool IApp::Start() {
         audioRecord->Start();
     if (muxer)
         muxer->Start();
+    if (aencode)
+        aencode->Start();
     if (vencode)
         vencode->Start();
     XThread::Start();
@@ -54,10 +60,16 @@ void IApp::Close() {
     }
     if (vencode)
         vencode->Stop();
+    if (aencode)
+        aencode->Stop();
     if(vencode)
         vencode->Clear();
+    if (aencode)
+        aencode->Clear();
     if(vencode)
         vencode->Close();
+    if (aencode)
+        aencode->Close();
     if (audioRecord) {
         audioRecord->Stop();
         audioRecord->Clear();

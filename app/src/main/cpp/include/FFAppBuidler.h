@@ -20,7 +20,10 @@ protected:
     FFAppBuidler() {};
     virtual IMux *CreateMux();
     virtual IAudioRecord *CreateAudioRecord();
-    virtual IEncode *CreateEncode();
+    virtual IEncode *CreateEncode(bool isAudio);
+
+    void CreateEnv() override;
+
 //    virtual IDemux *CreateDemux();
 //    virtual IDecode *CreateDecode();
 //    virtual IResample *CreateResample();
