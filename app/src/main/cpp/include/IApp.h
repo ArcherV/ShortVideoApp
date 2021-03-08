@@ -19,10 +19,10 @@ public:
     virtual void InitView(void *win, const char *, const char *, const char *);
     virtual void Close();
 
-    IAudioRecord *audioRecord = 0;
-    IEncode *aencode = 0;
-    IEncode *vencode = 0;
-    IMux *muxer = 0;
+    IAudioRecord *audioRecord = nullptr;
+    IEncode *aencode = nullptr;
+    IEncode *vencode = nullptr;
+    IMux *muxer = nullptr;
 protected:
     void Main() override;
     IApp() {}

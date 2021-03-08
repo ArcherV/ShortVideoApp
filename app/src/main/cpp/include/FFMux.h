@@ -13,26 +13,24 @@ struct AVStream;
 
 class FFMux : public IMux {
 public:
-    virtual bool Open(const char *url, XParameter para);
+    virtual bool Open(const char *url);
+
+    virtual bool AddStream(bool, XParameter);
 
     virtual void Close();
-
-    //获取视频参数
-    virtual XParameter GetVPara();
-
-    //获取音频参数
-    virtual XParameter GetAPara();
 
     virtual void Write(XData);
 
 private:
-    AVFormatContext *ic = 0;
-    AVOutputFormat *fmt = 0;
-    AVStream *stream = 0;
+    AVFormatContext *ic = nullptr;
+    AVOutputFormat *fmt = nullptr;
+    AVStream *audioStream = nullptr;
+    AVStream *videoStream = nullptr;
     std::mutex mux;
-    std::condition_variable condition;
-    int audioStream = 1;
-    int videoStream = 0;
+//    std::condition_variable condition;
+    const int AUDIO_STREAM = 1;
+    const int VIDEO_STREAM = 0;
+    int nb_streams = 0;
 };
 
 

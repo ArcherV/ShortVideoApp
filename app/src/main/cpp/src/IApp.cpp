@@ -25,10 +25,12 @@ bool IApp::Open(const char *path) {
         XLOGE("Open", "vdecode->Open failed!");
         return false;
     }
-    if(!muxer || !muxer->Open(path, vencode->GetPara())){
+    if(!muxer || !muxer->Open(path)){
         XLOGE("Open", "mux->Open %s failed!", path);
         return false;
     }
+    muxer->AddStream(false, vencode->GetPara());
+    muxer->AddStream(true, aencode->GetPara());
     return true;
 }
 

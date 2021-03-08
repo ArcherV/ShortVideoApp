@@ -10,7 +10,7 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-bool FFMux::Open(const char *url, XParameter para) {
+bool FFMux::Open(const char *url) {
     Close();
     std::lock_guard<std::mutex> lck(mux);
     int re = avformat_alloc_output_context2(&ic, nullptr, nullptr, url);
@@ -20,16 +20,7 @@ bool FFMux::Open(const char *url, XParameter para) {
         XLOGE("FFMux::Open", "FFMux open %s failed! %s", url, buf);
         return false;
     }
-    XLOGE("FFMux::Open", "FFMux open %s success!", url);
     fmt = ic->oformat;
-    stream = avformat_new_stream(ic, nullptr);
-    if (!stream) {
-        XLOGE("FFMux::Open", "Stream open %s failed!", url);
-        return false;
-    }
-    stream->id = stream->index = 0;
-    avcodec_parameters_copy(stream->codecpar, para.para);
-
     if (!(fmt->flags & AVFMT_NOFILE)) {
         int ret = avio_open(&ic->pb, url, AVIO_FLAG_WRITE);
         if (ret < 0) {
@@ -37,13 +28,33 @@ bool FFMux::Open(const char *url, XParameter para) {
             return false;
         }
     }
-    AVDictionary* opt = nullptr;
-    av_dict_set_int(&opt, "video_track_timescale", 25, 0);
-    int ret = avformat_write_header(ic, &opt);
-    if (ret < 0) {
-        XLOGE("FFMux::Open", "Error occurred when opening output file: %s", av_err2str(ret));
+    XLOGE("FFMux::Open", "FFMux open %s success!", url);
+    return true;
+}
+
+bool FFMux::AddStream(bool isAudio, XParameter para) {
+    AVStream *stream = avformat_new_stream(ic, nullptr);
+    if (!stream) {
+        XLOGE("FFMux::Open", "Stream open %s failed!", (isAudio ? "audio" : "video"));
         return false;
     }
+    stream->id = stream->index = (isAudio ? AUDIO_STREAM : VIDEO_STREAM);
+    avcodec_parameters_copy(stream->codecpar, para.para);
+    nb_streams++;
+    if (isAudio)
+        audioStream = stream;
+    else
+        videoStream = stream;
+    if (nb_streams == 2) {
+        AVDictionary* opt = nullptr;
+        av_dict_set_int(&opt, "video_track_timescale", 25, 0);
+        int ret = avformat_write_header(ic, &opt);
+        if (ret < 0) {
+            XLOGE("FFMux::Open", "Error occurred when opening output file: %s", av_err2str(ret));
+            return false;
+        }
+    }
+    XLOGE("FFMux::Open", "Add stream %s success!", (isAudio ? "audio" : "video"));
     return true;
 }
 
@@ -58,52 +69,12 @@ void FFMux::Close() {
     }
 }
 
-XParameter FFMux::GetVPara() {
-    std::lock_guard<std::mutex> lck(mux);
-    if (!ic) {
-        XLOGE("GetVPara", "GetVPara failed! ic is NULL! ");
-        return XParameter();
-    }
-
-    //获取了视频流索引
-    int re = av_find_best_stream(ic, AVMEDIA_TYPE_VIDEO, -1, -1, 0, 0);
-    if(re < 0) {
-        XLOGE("GetVPara", "av_find_best_stream failed!");
-        return XParameter();
-    }
-    videoStream = re;
-    XParameter para;
-    para.para = ic->streams[re]->codecpar;
-    para.time_base = &(ic->streams[re]->time_base);
-    return para;
-}
-
-XParameter FFMux::GetAPara() {
-    std::lock_guard<std::mutex> lck(mux);
-    if (!ic) {
-        XLOGE("GetAPara", "GetVPara failed! ic is NULL! ");
-        return XParameter();
-    }
-
-    //获取了音频流索引
-    int re = av_find_best_stream(ic, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0);
-    if (re < 0) {
-        XLOGE("GetAPara", "av_find_best_stream failed!");
-        return XParameter();
-    }
-
-    audioStream = re;
-    XParameter para;
-    para.para = ic->streams[re]->codecpar;
-    para.time_base = &(ic->streams[re]->time_base);
-    return para;
-}
-
 void FFMux::Write(XData pkt) {
     if(pkt.size <= 0 || !pkt.data)
         return;
     std::lock_guard<std::mutex> lck(mux);
-    ((AVPacket *)pkt.data)->stream_index = stream->index;
+    XLOGE("FFMux::Write", "Packet type %s pts %ld size %d", (pkt.isAudio ? "audio" : "video"), ((AVPacket *)pkt.data)->pts, ((AVPacket *)pkt.data)->size);
+    ((AVPacket *)pkt.data)->stream_index = (pkt.isAudio ? AUDIO_STREAM : VIDEO_STREAM);
     av_interleaved_write_frame(ic, (AVPacket *)pkt.data);
     av_packet_unref((AVPacket *)pkt.data);
 }

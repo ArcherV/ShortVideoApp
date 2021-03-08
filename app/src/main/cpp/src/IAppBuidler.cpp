@@ -9,18 +9,19 @@
 
 IApp *IAppBuidler::BuilderApp() {
     IApp *app = CreateApp();
-//    IMux *muxer = CreateMux();
     CreateEnv();
+    IMux *muxer = CreateMux();
     IAudioRecord *audioRecord = CreateAudioRecord();
-//    IEncode *vencode = CreateEncode(false);
+    IEncode *vencode = CreateEncode(false);
     IEncode *aencode = CreateEncode(true);
-//    XTexture::Get()->AddObs(vencode);
+    XTexture::Get()->AddObs(vencode);
     audioRecord->AddObs(aencode);
-//    vencode->AddObs(muxer);
+    aencode->AddObs(muxer);
+    vencode->AddObs(muxer);
     app->audioRecord = audioRecord;
     app->aencode = aencode;
-//    app->vencode = vencode;
-//    app->muxer = muxer;
+    app->vencode = vencode;
+    app->muxer = muxer;
 //    XLOGE("BuilderApp", "xxxxxxx");
     return app;
 }

@@ -119,6 +119,7 @@ void FFEncode::Close() {
 void FFEncode::Clear() {
     IEncode::Clear();
     std::lock_guard<std::mutex> lck(mux);
+//    XLOGE("FFEncode::Clear", "codec is null ? %s", (codec == nullptr ? "Yes" : "No"));
     if (codec)
         avcodec_flush_buffers(codec);
 }
@@ -127,13 +128,10 @@ bool FFEncode::SendFrame(XData fr) {
     if (fr.size <= 0 || !fr.data)
         return false;
     std::lock_guard<std::mutex> lck(mux);
-    if (isAudio) {
+    if (isAudio)
         memcpy(frame->data[0], fr.data, (size_t)fr.size);
-        frame->nb_samples = fr.size / 4;
-    }
     else
         rgbToFrame(WIDTH, HEIGHT, fr.data, frame, RGBA_YUV420P);
-    XLOGE("FFEncode::SendFrame", "pts %ld", fr.pts);
     frame->pts = fr.pts;
     int re = avcodec_send_frame(codec, frame);
     if (re != 0) {
@@ -155,7 +153,7 @@ XData FFEncode::RecvPacket() {
     int re = avcodec_receive_packet(codec, packet);
     if (re != 0)
         return XData();
-    XLOGE("FFEncode::RecvPacket", "Packet pts %ld (size=%d)", packet->pts, packet->size);
+//    XLOGE("FFEncode::RecvPacket", "Packet pts %ld dts %ld size %d", packet->pts, packet->dts, packet->size);
     // 不能写成AVPacket tmp = {0};这种会有很多错误
     AVPacket *tmp = av_packet_alloc();
     av_packet_ref(tmp, packet);

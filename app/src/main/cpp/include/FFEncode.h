@@ -28,9 +28,9 @@ public:
 
 private:
     int pts = -1;
-    AVCodecContext *codec;
-    AVFrame *frame;
-    AVPacket *packet;
+    AVCodecContext *codec = nullptr;
+    AVFrame *frame = nullptr;
+    AVPacket *packet = nullptr;
     SwsContext *swsContext;
     SwrContext *swrContext;
     std::mutex mux;
