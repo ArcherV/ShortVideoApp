@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         InitView(holder.getSurface());
         surfaceTexture = new SurfaceTexture(CreateTextureOES());
         surfaceTexture.setOnFrameAvailableListener(this);
-        surfaceTexture.setDefaultBufferSize(1080, 1920);
+        surfaceTexture.setDefaultBufferSize(720, 1280);
         camera = new Camera(this, surfaceTexture);
         camera.openCamera(cameraId);
     }

@@ -56,7 +56,7 @@ void XShader::Close()
         glDeleteProgram(programOES);
 }
 
-bool XShader::Init(const char *vertexShader, const char *fragmentOESShader, const char *fragmentShader)
+bool XShader::Init()
 {
     Close();
     std::lock_guard<std::mutex> lck(mux);

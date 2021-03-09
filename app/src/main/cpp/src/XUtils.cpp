@@ -19,6 +19,9 @@ const int GOP_SIZE = 10;
 const int MAX_B_FRAMES = 1;
 const AVPixelFormat PIX_FMT = AV_PIX_FMT_YUV420P;
 const int PROFILE = FF_PROFILE_H264_BASELINE;
+char *vertexShader = nullptr;
+char *fragmentOESShader = nullptr;
+char *fragmentShader = nullptr;
 
 char *readAssetFile(const char *filename, AAssetManager *mgr) {
     if (mgr == nullptr) {

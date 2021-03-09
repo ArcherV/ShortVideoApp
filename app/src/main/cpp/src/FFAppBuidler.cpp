@@ -2,6 +2,7 @@
 // Created by ArcherV on 2021-02-23.
 //
 
+#include "XReadPixels.h"
 #include "SLAudioRecord.h"
 #include "FFAppBuidler.h"
 #include "FFEncode.h"
@@ -33,4 +34,9 @@ void FFAppBuidler::CreateEnv() {
     av_register_all();
     //注册所有的解码器
     avcodec_register_all();
+}
+
+IReadPixels *FFAppBuidler::CreateReadPixels() {
+    IReadPixels *readPixels = new XReadPixels();
+    return readPixels;
 }

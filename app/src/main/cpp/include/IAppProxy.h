@@ -17,11 +17,11 @@ public:
     }
 
     void Init();
-    GLuint CreateTextureOES();
+    GLuint CreateTexture();
     void Render();
     virtual bool Open(const char *path);
     virtual bool Start();
-    virtual void InitView(void *win, const char *, const char *, const char *);
+    virtual void InitView(void *win);
     virtual void Close();
     virtual bool IsPause();
 

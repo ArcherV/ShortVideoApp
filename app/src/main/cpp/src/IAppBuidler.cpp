@@ -12,12 +12,15 @@ IApp *IAppBuidler::BuilderApp() {
     CreateEnv();
     IMux *muxer = CreateMux();
     IAudioRecord *audioRecord = CreateAudioRecord();
+    IReadPixels *readPixels = CreateReadPixels();
     IEncode *vencode = CreateEncode(false);
     IEncode *aencode = CreateEncode(true);
-    XTexture::Get()->AddObs(vencode);
+    XTexture::Get()->AddObs(readPixels);
+    readPixels->AddObs(vencode);
     audioRecord->AddObs(aencode);
     aencode->AddObs(muxer);
     vencode->AddObs(muxer);
+    app->readPixels = readPixels;
     app->audioRecord = audioRecord;
     app->aencode = aencode;
     app->vencode = vencode;

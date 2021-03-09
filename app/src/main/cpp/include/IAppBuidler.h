@@ -10,6 +10,7 @@
 #include "IEncode.h"
 #include "IApp.h"
 #include "IMux.h"
+#include "IReadPixels.h"
 
 class IAppBuidler {
 public:
@@ -19,6 +20,7 @@ protected:
 //    virtual IDemux *CreateDemux() = 0;
     virtual IMux *CreateMux() = 0;
     virtual void CreateEnv() = 0;
+    virtual IReadPixels *CreateReadPixels() = 0;
     virtual IAudioRecord *CreateAudioRecord() = 0;
 //    virtual IDecode *CreateDecode() = 0;
     virtual IEncode *CreateEncode(bool isAudio) = 0;

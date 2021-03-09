@@ -22,6 +22,9 @@ Java_com_example_shortvideoapp_MainActivity_registerAssetManager(
         jobject,
         jobject asset_manager) {
     g_pAssetManager = AAssetManager_fromJava(env, asset_manager);
+    vertexShader = readAssetFile("vertex.glsl", g_pAssetManager);
+    fragmentOESShader = readAssetFile("fragmentOES.glsl", g_pAssetManager);
+    fragmentShader = readAssetFile("fragment2D.glsl", g_pAssetManager);
 }
 
 extern "C"
@@ -35,17 +38,14 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_shortvideoapp_MainActivity_InitView(JNIEnv *env, jobject, jobject surface) {
     ANativeWindow *win = ANativeWindow_fromSurface(env, surface);
-    const char *vertexShader = readAssetFile("vertex.glsl", g_pAssetManager);
-    const char *fragmentOESShader = readAssetFile("fragmentOES.glsl", g_pAssetManager);
-    const char *fragmentShader = readAssetFile("fragment2D.glsl", g_pAssetManager);
-    IAppProxy::Get()->InitView(win, vertexShader, fragmentOESShader, fragmentShader);
+    IAppProxy::Get()->InitView(win);
 }
 
 extern "C"
 JNIEXPORT jint JNICALL
 Java_com_example_shortvideoapp_MainActivity_CreateTextureOES(JNIEnv *, jobject) {
     XLOGE("CreateTexture", "提前Create了");
-    return (jint)IAppProxy::Get()->CreateTextureOES();
+    return (jint)IAppProxy::Get()->CreateTexture();
 }
 
 extern "C"

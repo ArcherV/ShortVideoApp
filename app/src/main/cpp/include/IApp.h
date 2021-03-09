@@ -10,17 +10,19 @@
 #include "IEncode.h"
 #include "IMux.h"
 #include "IAudioRecord.h"
+#include "IReadPixels.h"
 
 class IApp : public XThread {
 public:
     static IApp *Get();
     virtual bool Open(const char *path);
     virtual bool Start() override ;
-    virtual void InitView(void *win, const char *, const char *, const char *);
+    virtual void InitView(void *win);
     virtual void Close();
 
     IAudioRecord *audioRecord = nullptr;
     IEncode *aencode = nullptr;
+    IReadPixels *readPixels = nullptr;
     IEncode *vencode = nullptr;
     IMux *muxer = nullptr;
 protected:

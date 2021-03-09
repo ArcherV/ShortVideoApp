@@ -16,9 +16,9 @@ bool IAppProxy::Start() {
     return app && app->Start();
 }
 
-void IAppProxy::InitView(void *win, const char *vertexShader, const char *fragmentOESShader, const char *fragmentShader) {
+void IAppProxy::InitView(void *win) {
     std::lock_guard<std::mutex> lck(mux);
-    app->InitView(win, vertexShader, fragmentOESShader, fragmentShader);
+    app->InitView(win);
 }
 
 void IAppProxy::Close() {
@@ -36,8 +36,8 @@ void IAppProxy::Init() {
     app = FFAppBuidler::Get()->BuilderApp();
 }
 
-GLuint IAppProxy::CreateTextureOES() {
-    return XTexture::Get()->CreateTextureOES();
+GLuint IAppProxy::CreateTexture() {
+    return XTexture::Get()->CreateTexture();
 }
 
 void IAppProxy::Render() {

@@ -16,7 +16,7 @@ enum TextureType {
 class XShader {
 public:
     virtual void Close();
-    virtual bool Init(const char *, const char *, const char *);
+    virtual bool Init();
 
     //获取材质并映射到内存
     virtual void GetTexture(int textureId, int width, int height, unsigned char *buf);

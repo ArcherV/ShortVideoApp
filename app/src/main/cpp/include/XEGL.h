@@ -6,15 +6,22 @@
 #define SHORTVIDEOAPP_XEGL_H
 
 
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <mutex>
+
 class XEGL {
 public:
-    virtual bool Init(void *win) = 0;
-    virtual void Draw() = 0;
-    virtual void Close() = 0;
-    static XEGL *Get();
-
+    virtual bool Init(void *win, EGLContext sharedContext);
+    virtual void Draw();
+    virtual void Close();
+    virtual EGLContext getSharedContext();
 protected:
-    XEGL(){}
+private:
+    EGLDisplay display = EGL_NO_DISPLAY;
+    EGLSurface surface = EGL_NO_SURFACE;
+    EGLContext context = EGL_NO_CONTEXT;
+    std::mutex mux;
 };
 
 

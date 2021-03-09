@@ -22,6 +22,8 @@ protected:
     virtual IAudioRecord *CreateAudioRecord();
     virtual IEncode *CreateEncode(bool isAudio);
 
+    virtual IReadPixels *CreateReadPixels() override;
+
     void CreateEnv() override;
 
 //    virtual IDemux *CreateDemux();

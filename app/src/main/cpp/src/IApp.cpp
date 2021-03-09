@@ -21,6 +21,10 @@ bool IApp::Open(const char *path) {
         XLOGE("Open", "aencode->Open failed!");
         return false;
     }
+    if(!readPixels || !readPixels->Open()){
+        XLOGE("Open", "readPixels->Open failed!");
+        return false;
+    }
     if(!vencode || !vencode->Open()){
         XLOGE("Open", "vdecode->Open failed!");
         return false;
@@ -38,6 +42,8 @@ bool IApp::Start() {
     std::lock_guard<std::mutex> lck(mux);
     if (audioRecord)
         audioRecord->Start();
+    if (readPixels)
+        readPixels->Start();
     if (muxer)
         muxer->Start();
     if (aencode)
@@ -48,8 +54,9 @@ bool IApp::Start() {
     return true;
 }
 
-void IApp::InitView(void *win, const char *vertexShader, const char *fragmentOESShader, const char *fragmentShader) {
-    XTexture::Get()->Init(win, vertexShader, fragmentOESShader, fragmentShader);
+void IApp::InitView(void *win) {
+    XTexture::Get()->Init(win);
+    readPixels->setSharedContext(XTexture::Get()->getSharedContext());
 }
 
 void IApp::Close() {
@@ -62,14 +69,20 @@ void IApp::Close() {
     }
     if (vencode)
         vencode->Stop();
+    if (readPixels)
+        readPixels->Stop();
     if (aencode)
         aencode->Stop();
     if(vencode)
         vencode->Clear();
+    if(readPixels)
+        readPixels->Clear();
     if (aencode)
         aencode->Clear();
     if(vencode)
         vencode->Close();
+    if(readPixels)
+        readPixels->Close();
     if (aencode)
         aencode->Close();
     if (audioRecord) {

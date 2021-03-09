@@ -23,6 +23,9 @@ extern const int GOP_SIZE;
 extern const int MAX_B_FRAMES;
 extern const AVPixelFormat PIX_FMT;
 extern const int PROFILE;
+extern char *vertexShader;
+extern char *fragmentOESShader;
+extern char *fragmentShader;
 
 struct AVFrame;
 

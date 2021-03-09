@@ -7,99 +7,104 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <mutex>
+#include "XUtils.h"
 
-class CXEGL : public XEGL {
-public:
-    bool Init(void *win) override {
-        ANativeWindow *nwin = (ANativeWindow *)win;
-        Close();
-        std::lock_guard<std::mutex> lck(mux);
+bool XEGL::Init(void *win, EGLContext sharedContext) {
+    ANativeWindow *nwin = (ANativeWindow *)win;
+    Close();
+    std::lock_guard<std::mutex> lck(mux);
 
-        display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
-        if (display == EGL_NO_DISPLAY) {
-            XLOGE("Init", "eglGetDisplay failed!");
-            return false;
-        }
-
-        XLOGE("Init", "eglGetDisplay success!");
-
-        //2初始化Display
-        if(EGL_TRUE != eglInitialize(display, 0, 0)){
-            XLOGE("Init", "eglInitialize failed!");
-            return false;
-        }
-        XLOGE("Init", "eglInitialize success!");
-
-        //3 获取配置并创建surface
-        EGLint configSpec [] = {
-                EGL_RED_SIZE,8,
-                EGL_GREEN_SIZE, 8,
-                EGL_BLUE_SIZE, 8,
-                EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-                EGL_NONE
-        };
-        EGLConfig config = 0;
-        EGLint numConfig = 0;
-        if(EGL_TRUE != eglChooseConfig(display, configSpec, &config, 1, &numConfig)){
-            XLOGE("Init", "eglChooseConfig failed!");
-            return false;
-        }
-        surface = eglCreateWindowSurface(display, config, nwin, NULL);
-
-        //4创建并打开EGL上下文
-        const EGLint ctxAttr[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
-        context = eglCreateContext(display, config, EGL_NO_CONTEXT, ctxAttr);
-
-        if(context == EGL_NO_CONTEXT){
-            XLOGE("Init", "eglChooseContext failed!");
-            return false;
-        }
-        XLOGE("Init", "eglChooseContext success!");
-
-        if(EGL_TRUE != eglMakeCurrent(display, surface, surface, context)){
-            XLOGE("Init", "eglMakeCurrent failed!");
-            return false;
-        }
-
-        XLOGE("Init", "eglMakeCurrent success!");
-        return true;
+    if (display == EGL_NO_DISPLAY) {
+        XLOGE("Init", "eglGetDisplay failed!");
+        return false;
     }
 
-    void Draw() override {
-        std::lock_guard<std::mutex> lck(mux);
-        if(display == EGL_NO_DISPLAY || surface == EGL_NO_SURFACE)
-            return;
-        eglSwapBuffers(display, surface);
+    XLOGE("Init", "eglGetDisplay success!");
+
+    //2初始化Display
+    if(EGL_TRUE != eglInitialize(display, 0, 0)){
+        XLOGE("Init", "eglInitialize failed!");
+        return false;
+    }
+    XLOGE("Init", "eglInitialize success!");
+
+    //3 获取配置并创建surface
+    EGLint configSpec [] = {
+            EGL_RED_SIZE,8,
+            EGL_GREEN_SIZE, 8,
+            EGL_BLUE_SIZE, 8,
+            EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+            EGL_NONE
+    };
+    EGLint configSpecPbuffer [] = {
+            EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,// very important!
+            EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,//EGL_WINDOW_BIT EGL_PBUFFER_BIT we will create a pixelbuffer surface
+            EGL_RED_SIZE,8,
+            EGL_GREEN_SIZE, 8,
+            EGL_BLUE_SIZE, 8,
+            EGL_NONE
+    };
+    EGLint surfaceAttr[] = {
+            EGL_WIDTH, WIDTH,
+            EGL_HEIGHT, HEIGHT,
+            EGL_NONE
+    };
+    EGLConfig config = 0;
+    EGLint numConfig = 0;
+    if(EGL_TRUE != eglChooseConfig(display, sharedContext == nullptr ? configSpec : configSpecPbuffer, &config, 1, &numConfig)){
+        XLOGE("Init", "eglChooseConfig failed!");
+        return false;
+    }
+    surface = sharedContext == nullptr ? eglCreateWindowSurface(display, config, nwin, NULL) :
+            eglCreatePbufferSurface(display, config, surfaceAttr);
+
+    //4创建并打开EGL上下文
+    const EGLint ctxAttr[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+    context = eglCreateContext(display, config, sharedContext == nullptr ? EGL_NO_CONTEXT : sharedContext, ctxAttr);
+
+    if(context == EGL_NO_CONTEXT){
+        XLOGE("Init", "eglChooseContext failed!");
+        return false;
+    }
+    XLOGE("Init", "eglChooseContext success!");
+
+    if(EGL_TRUE != eglMakeCurrent(display, surface, surface, context)){
+        XLOGE("Init", "eglMakeCurrent failed!");
+        return false;
     }
 
-    void Close() override {
-        std::lock_guard<std::mutex> lck(mux);
-        if(display == EGL_NO_DISPLAY)
-            return;
+    XLOGE("Init", "eglMakeCurrent success!");
+    return true;
+}
 
-        eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+void XEGL::Draw() {
+    std::lock_guard<std::mutex> lck(mux);
+    if(display == EGL_NO_DISPLAY || surface == EGL_NO_SURFACE)
+        return;
+    eglSwapBuffers(display, surface);
+}
 
-        if(surface != EGL_NO_SURFACE)
-            eglDestroySurface(display, surface);
-        if(context != EGL_NO_CONTEXT)
-            eglDestroyContext(display,context);
+void XEGL::Close() {
+    std::lock_guard<std::mutex> lck(mux);
+    if(display == EGL_NO_DISPLAY)
+        return;
 
-        eglTerminate(display);
+    eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
-        display = EGL_NO_DISPLAY;
-        surface = EGL_NO_SURFACE;
-        context = EGL_NO_CONTEXT;
-    }
+    if(surface != EGL_NO_SURFACE)
+        eglDestroySurface(display, surface);
+    if(context != EGL_NO_CONTEXT)
+        eglDestroyContext(display,context);
 
-private:
-    EGLDisplay display = EGL_NO_DISPLAY;
-    EGLSurface surface = EGL_NO_SURFACE;
-    EGLContext context = EGL_NO_CONTEXT;
-    std::mutex mux;
-};
+    eglTerminate(display);
 
-XEGL *XEGL::Get() {
-    static CXEGL egl;
-    return &egl;
+    display = EGL_NO_DISPLAY;
+    surface = EGL_NO_SURFACE;
+    context = EGL_NO_CONTEXT;
+}
+
+EGLContext XEGL::getSharedContext() {
+    return context;
 }
