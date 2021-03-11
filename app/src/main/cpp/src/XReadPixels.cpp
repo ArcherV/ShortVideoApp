@@ -8,11 +8,12 @@
 
 void XReadPixels::CreateEnv() {
     egl.Init(nullptr, sharedContext);
-    sh.Init();
+    sh.Init(false);
     if (texture == 0) {
         glGenFramebuffers(1, &framebuffer);
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         glGenTextures(1, &texture);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WIDTH, HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -29,11 +30,12 @@ void XReadPixels::CreateEnv() {
 XData XReadPixels::ReadPixels(GLuint texture2D) {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture2D);
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture2D);
     glViewport(0, 0, WIDTH, HEIGHT);
-    sh.Draw(TYPE_2D);
+    sh.Draw(TYPE_OES);
+    glFinish();
     glReadPixels(0, 0, WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, pixs_buffer);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     XData data;
     data.Alloc(WIDTH * HEIGHT * 4, pixs_buffer);

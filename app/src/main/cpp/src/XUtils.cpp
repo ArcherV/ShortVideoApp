@@ -7,6 +7,9 @@
 #include "XUtils.h"
 #include "Xlog.h"
 
+const int HDR_WIDTH = 2048;
+const int HDR_HEIGHT = 1536;
+const int HDR_CHANNEL = 3;
 const int WIDTH = 720;
 const int HEIGHT = 1280;
 const AVCodecID VCODEC_ID = AV_CODEC_ID_H264;

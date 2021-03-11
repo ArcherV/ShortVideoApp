@@ -4,8 +4,6 @@
 
 #include "XEGL.h"
 #include "Xlog.h"
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
 #include <mutex>
 #include "XUtils.h"
 
@@ -51,13 +49,25 @@ bool XEGL::Init(void *win, EGLContext sharedContext) {
             EGL_HEIGHT, HEIGHT,
             EGL_NONE
     };
+    EGLint configSpecHDR [] = {
+            EGL_RED_SIZE, 10,
+            EGL_GREEN_SIZE, 10,
+            EGL_BLUE_SIZE, 10,
+            EGL_ALPHA_SIZE, 2,
+            EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+            EGL_NONE
+    };
     EGLConfig config = 0;
     EGLint numConfig = 0;
-    if(EGL_TRUE != eglChooseConfig(display, sharedContext == nullptr ? configSpec : configSpecPbuffer, &config, 1, &numConfig)){
+    if(EGL_TRUE != eglChooseConfig(display, sharedContext == nullptr ? configSpecHDR : configSpecPbuffer, &config, 1, &numConfig)){
         XLOGE("Init", "eglChooseConfig failed!");
         return false;
     }
-    surface = sharedContext == nullptr ? eglCreateWindowSurface(display, config, nwin, NULL) :
+    EGLint attributes [] = {
+            EGL_GL_COLORSPACE_KHR, EGL_GL_COLORSPACE_SCRGB_EXT,
+            EGL_NONE
+    };
+    surface = sharedContext == nullptr ? eglCreateWindowSurface(display, config, nwin, attributes) :
             eglCreatePbufferSurface(display, config, surfaceAttr);
 
     //4创建并打开EGL上下文

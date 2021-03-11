@@ -73,11 +73,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.record_button:
                 if (!recording) {
                     recorder_button.setColorFilter(RUNNING);
-                    startRecord();
+//                    startRecord();
                     Toast.makeText(getApplicationContext(), "开始录制了", Toast.LENGTH_SHORT).show();
                 } else {
                     recorder_button.setColorFilter(0);
-                    stopRecord();
+//                    stopRecord();
                     Toast.makeText(getApplicationContext(), "停止录制了", Toast.LENGTH_SHORT).show();
                 }
                 recording = !recording;
@@ -96,18 +96,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-        surfaceTexture.updateTexImage();
-        render();
+//        surfaceTexture.updateTexImage();
+//        render();
     }
 
     @Override
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
         InitView(holder.getSurface());
-        surfaceTexture = new SurfaceTexture(CreateTextureOES());
-        surfaceTexture.setOnFrameAvailableListener(this);
-        surfaceTexture.setDefaultBufferSize(720, 1280);
-        camera = new Camera(this, surfaceTexture);
-        camera.openCamera(cameraId);
+//        surfaceTexture = new SurfaceTexture(CreateTextureOES());
+//        surfaceTexture.setOnFrameAvailableListener(this);
+//        surfaceTexture.setDefaultBufferSize(720, 1280);
+//        camera = new Camera(this, surfaceTexture);
+//        camera.openCamera(cameraId);
     }
 
     @Override
@@ -122,8 +122,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private native void InitView(Object surface);
     private native void registerAssetManager(AssetManager assetManager);
-    private native int CreateTextureOES();
-    private native void render();
-    private native void startRecord();
-    private native void stopRecord();
+//    private native int CreateTextureOES();
+//    private native void render();
+//    private native void startRecord();
+//    private native void stopRecord();
 }

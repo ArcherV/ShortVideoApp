@@ -28,41 +28,9 @@ Java_com_example_shortvideoapp_MainActivity_registerAssetManager(
 }
 
 extern "C"
-JNIEXPORT
-jint JNI_OnLoad(JavaVM *, void *) {
-    IAppProxy::Get()->Init();
-    return JNI_VERSION_1_6;
-}
-
-extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_shortvideoapp_MainActivity_InitView(JNIEnv *env, jobject, jobject surface) {
     ANativeWindow *win = ANativeWindow_fromSurface(env, surface);
-    IAppProxy::Get()->InitView(win);
-}
-
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_example_shortvideoapp_MainActivity_CreateTextureOES(JNIEnv *, jobject) {
-    XLOGE("CreateTexture", "提前Create了");
-    return (jint)IAppProxy::Get()->CreateTexture();
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_example_shortvideoapp_MainActivity_render(JNIEnv *, jobject) {
-    IAppProxy::Get()->Render();
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_example_shortvideoapp_MainActivity_startRecord(JNIEnv *, jobject) {
-    IAppProxy::Get()->Open("/sdcard/out.mp4");
-    IAppProxy::Get()->Start();
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_example_shortvideoapp_MainActivity_stopRecord(JNIEnv *env, jobject thiz) {
-    IAppProxy::Get()->Close();
+    XTexture::Get()->Init(win);
+    XTexture::Get()->DrawOES();
 }

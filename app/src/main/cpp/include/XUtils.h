@@ -10,7 +10,9 @@ extern "C" {
 #include <libavutil/frame.h>
 #include <libavcodec/avcodec.h>
 };
-
+extern const int HDR_WIDTH;
+extern const int HDR_HEIGHT;
+extern const int HDR_CHANNEL;
 extern const int WIDTH;
 extern const int HEIGHT;
 extern const AVCodecID VCODEC_ID;

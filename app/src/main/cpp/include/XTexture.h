@@ -5,8 +5,8 @@
 #ifndef SHORTVIDEOAPP_XTEXTURE_H
 #define SHORTVIDEOAPP_XTEXTURE_H
 
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+#include <GLES3/gl3.h>
+#include <GLES3/gl3ext.h>
 #include <EGL/egl.h>
 #include "XShader.h"
 #include "IObserver.h"
@@ -29,6 +29,9 @@ protected:
     unsigned int textureOES = 0;
     unsigned int texture2D = 0;
     unsigned int framebuffer = 0;
+//    uint16_t *pixs_buffer = nullptr;
+//    uint8_t *pixs_buffer = nullptr;
+    uint32_t *pixs_buffer = nullptr;
 };
 
 

@@ -56,16 +56,16 @@ void XShader::Close()
         glDeleteProgram(programOES);
 }
 
-bool XShader::Init()
+bool XShader::Init(bool screen)
 {
     Close();
     std::lock_guard<std::mutex> lck(mux);
-    programOES = CreateProgram(TYPE_OES, vertexShader, fragmentOESShader);
-    program2D = CreateProgram(TYPE_2D, vertexShader, fragmentShader);
+    programOES = CreateProgram(TYPE_OES, screen, vertexShader, fragmentOESShader);
+    program2D = CreateProgram(TYPE_2D, screen, vertexShader, fragmentShader);
     return !(programOES == 0 || program2D == 0);
 }
 
-GLuint XShader::CreateProgram(TextureType type, const char *vertexShader, const char *fragmentShader) {
+GLuint XShader::CreateProgram(TextureType type, bool screen, const char *vertexShader, const char *fragmentShader) {
     //顶点和片元shader初始化
     //顶点shader初始化
     vsh = InitShader(vertexShader, GL_VERTEX_SHADER);
@@ -125,10 +125,18 @@ GLuint XShader::CreateProgram(TextureType type, const char *vertexShader, const 
 
     static float mMatrix[16];
     if (type == TYPE_OES) {
-        matrixSetRotateM(mMatrix, 180, 0.0f, 1.0f, 0.0f);
-        matrixRotateM(mMatrix, -90, 0.0f, 0.0f, 1.0f);
+        if (screen) {
+            matrixSetRotateM(mMatrix, 180, 0.0f, 1.0f, 0.0f);
+            matrixRotateM(mMatrix, -90, 0.0f, 0.0f, 1.0f);
+        }
+        else {
+            matrixSetRotateM(mMatrix, 180, 0.0f, 1.0f, 0.0f);
+            matrixRotateM(mMatrix, 90, 0.0f, 0.0f, 1.0f);
+        }
     } else if (type == TYPE_2D) {
-        matrixSetIdentityM(mMatrix);
+//        matrixSetIdentityM(mMatrix);
+        matrixSetRotateM(mMatrix, 180, 0.0f, 1.0f, 0.0f);
+        matrixRotateM(mMatrix, 180, 0.0f, 0.0f, 1.0f);
     }
     glUniformMatrix4fv(glGetUniformLocation(program, "uMVPMatrix"), 1, GL_FALSE, mMatrix);
 
