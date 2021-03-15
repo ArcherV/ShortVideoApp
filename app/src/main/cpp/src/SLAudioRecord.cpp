@@ -31,7 +31,8 @@ XData SLAudioRecord::Read() {
     XData data;
     data.Alloc(BUFFER_SIZE * sizeof(short), buffer);
     data.isAudio = true;
-    data.pts = ++num;
+    data.pts = num;
+    num += BUFFER_SIZE / CHANNELS;
     return data;
 }
 
@@ -93,7 +94,7 @@ void SLAudioRecord::recorderInit() {
     pcmFormat.samplesPerSec = SL_SAMPLINGRATE_44_1;
     pcmFormat.bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16;        //每个采样点bit
     pcmFormat.containerSize = SL_PCMSAMPLEFORMAT_FIXED_16;
-    pcmFormat.channelMask = SL_SPEAKER_FRONT_CENTER;             //根据声道数确定掩码
+    pcmFormat.channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;             //根据声道数确定掩码
     pcmFormat.endianness = SL_BYTEORDER_LITTLEENDIAN;             //字节小端模式
 
     sink.pLocator = &queue;

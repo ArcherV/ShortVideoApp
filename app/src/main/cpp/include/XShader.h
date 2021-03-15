@@ -21,7 +21,7 @@ public:
     //获取材质并映射到内存
     virtual void GetTexture(int textureId, int width, int height, unsigned char *buf);
     virtual void GetTexture(unsigned int texId);
-    virtual void Draw(TextureType type);
+    virtual void Draw(TextureType type, bool screen);
 protected:
     virtual GLuint CreateProgram(TextureType, const char *, const char *);
 
@@ -30,6 +30,10 @@ protected:
     unsigned int program = 0;
     unsigned int program2D = 0;
     unsigned int programOES = 0;
+    GLuint vpos = GL_NONE;
+    GLuint tex = GL_NONE;
+    GLuint matrixHandle = GL_NONE;
+    GLuint textureHandle = GL_NONE;
     std::mutex mux;
 };
 

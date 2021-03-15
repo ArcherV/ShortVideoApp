@@ -47,7 +47,7 @@ bool FFMux::AddStream(bool isAudio, XParameter para) {
         videoStream = stream;
     if (nb_streams == 2) {
         AVDictionary* opt = nullptr;
-        av_dict_set_int(&opt, "video_track_timescale", 25, 0);
+        av_dict_set_int(&opt, "video_track_timescale", FRAMERATE, 0);
         int ret = avformat_write_header(ic, &opt);
         if (ret < 0) {
             XLOGE("FFMux::Open", "Error occurred when opening output file: %s", av_err2str(ret));

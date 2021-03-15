@@ -106,38 +106,20 @@ GLuint XShader::CreateProgram(TextureType type, const char *vertexShader, const 
         XLOGE("CreateProgram", "glLinkProgram failed!");
         return 0;
     }
+
     glUseProgram(program);
-    XLOGE("CreateProgram", "glLinkProgram success!");
 
-    GLuint  vpos = (GLuint)glGetAttribLocation(program, "vPosition");
-    glEnableVertexAttribArray(vpos);
-    //传递顶点
-    glVertexAttribPointer(vpos, 3, GL_FLOAT, GL_FALSE, 12, vers);
-
-    //加入材质坐标数据
-    GLuint tex = (GLuint)glGetAttribLocation(program,"inputTextureCoordinate");
-    glEnableVertexAttribArray(tex);
-    glVertexAttribPointer(tex, 2, GL_FLOAT, GL_FALSE, 8, txts);
-
-    //材质纹理初始化
-    //设置纹理层
-    glUniform1i(glGetUniformLocation(program, "s_texture"), 0); //对于纹理第1层
-
-    static float mMatrix[16];
-    if (type == TYPE_OES) {
-        matrixSetRotateM(mMatrix, 180, 0.0f, 1.0f, 0.0f);
-        matrixRotateM(mMatrix, -90, 0.0f, 0.0f, 1.0f);
-    } else if (type == TYPE_2D) {
-        matrixSetIdentityM(mMatrix);
-    }
-    glUniformMatrix4fv(glGetUniformLocation(program, "uMVPMatrix"), 1, GL_FALSE, mMatrix);
+    vpos = (GLuint)glGetAttribLocation(program, "vPosition");
+    tex = (GLuint)glGetAttribLocation(program,"inputTextureCoordinate");
+    textureHandle = (GLuint)glGetUniformLocation(program, "s_texture");
+    matrixHandle = (GLuint)glGetUniformLocation(program, "uMVPMatrix");
 
     XLOGE("CreateProgram", "初始化Shader成功!");
 
     return program;
 }
 
-void XShader::Draw(TextureType type)
+void XShader::Draw(TextureType type, bool screen)
 {
     std::lock_guard<std::mutex> lck(mux);
     if (type == TYPE_OES) {
@@ -154,7 +136,32 @@ void XShader::Draw(TextureType type)
         }
         glUseProgram(program2D);
     }
-    //三维绘制
+
+    glEnableVertexAttribArray(vpos);
+    glVertexAttribPointer(vpos, 3, GL_FLOAT, GL_FALSE, 12, vers);
+
+    //加入材质坐标数据
+    glEnableVertexAttribArray(tex);
+    glVertexAttribPointer(tex, 2, GL_FLOAT, GL_FALSE, 8, txts);
+
+    //材质纹理初始化
+    //设置纹理层
+    glUniform1i(textureHandle, 0); //对于纹理第1层
+
+    float mMatrix[16];
+    if (type == TYPE_OES) {
+        matrixSetRotateM(mMatrix, 180, 0.0f, 1.0f, 0.0f);
+        matrixRotateM(mMatrix, -90, 0.0f, 0.0f, 1.0f);
+    } else if (type == TYPE_2D) {
+        if (screen)
+            matrixSetIdentityM(mMatrix);
+        else {
+            matrixSetRotateM(mMatrix, 180, 0.0f, 1.0f, 0.0f);
+            matrixRotateM(mMatrix, 180, 0.0f, 0.0f, 1.0f);
+        }
+    }
+    glUniformMatrix4fv(matrixHandle, 1, GL_FALSE, mMatrix);
+
     glDrawArrays(GL_TRIANGLE_STRIP, 0 ,4);
 }
 

@@ -51,7 +51,7 @@ private:
     u_char *buffer;
     int num;
 
-    const SLuint32 CHANNELS = 1;
+    const SLuint32 CHANNELS = 2;
     const unsigned int PERIOD_TIME = 20;  //周期20ms
     const unsigned int FRAME_SIZE = SAMPLE_RATE * PERIOD_TIME / 1000;
     const unsigned int BUFFER_SIZE = FRAME_SIZE * CHANNELS;

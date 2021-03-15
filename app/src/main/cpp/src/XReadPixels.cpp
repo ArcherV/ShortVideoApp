@@ -31,7 +31,7 @@ XData XReadPixels::ReadPixels(GLuint texture2D) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture2D);
     glViewport(0, 0, WIDTH, HEIGHT);
-    sh.Draw(TYPE_2D);
+    sh.Draw(TYPE_2D, false);
     glReadPixels(0, 0, WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, pixs_buffer);
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

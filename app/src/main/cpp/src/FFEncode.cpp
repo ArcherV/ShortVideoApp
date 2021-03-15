@@ -20,7 +20,7 @@ bool FFEncode::Open() {
     //2 创建解码上下文 并复制参数
     codec = avcodec_alloc_context3(cd);
     if (isAudio) {
-        codec->sample_fmt = AV_SAMPLE_FMT_S16;
+        codec->sample_fmt = SAMPLE_FORMAT;
         codec->bit_rate = AUDIO_BIT_RATE;
         codec->sample_rate = SAMPLE_RATE;
         codec->codec_type = AVMEDIA_TYPE_AUDIO;
@@ -32,13 +32,13 @@ bool FFEncode::Open() {
                     codec->sample_rate = SAMPLE_RATE;
             }
         }
-        codec->channel_layout = AV_CH_LAYOUT_MONO;
+        codec->channel_layout = CHANNEL_LAYOUT;
         codec->channels       = av_get_channel_layout_nb_channels(codec->channel_layout);
         if (cd->channel_layouts) {
             codec->channel_layout = cd->channel_layouts[0];
             for (int i = 0; cd->channel_layouts[i]; i++) {
-                if (cd->channel_layouts[i] == AV_CH_LAYOUT_MONO)
-                    codec->channel_layout = AV_CH_LAYOUT_MONO;
+                if (cd->channel_layouts[i] == CHANNEL_LAYOUT)
+                    codec->channel_layout = CHANNEL_LAYOUT;
             }
         }
         codec->channels = av_get_channel_layout_nb_channels(codec->channel_layout);

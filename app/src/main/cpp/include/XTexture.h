@@ -17,7 +17,6 @@ public:
     virtual bool Init(void *win) = 0;
     virtual GLuint CreateTexture() = 0;
     virtual EGLContext getSharedContext() = 0;
-    virtual void Draw(unsigned char *data[], int width, int heigth, TextureType type) = 0;
     virtual void DrawOES() = 0;
     virtual void Drop() = 0;
 
@@ -26,9 +25,11 @@ public:
 protected:
     XTexture(){};
 
-    unsigned int textureOES = 0;
-    unsigned int texture2D = 0;
-    unsigned int framebuffer = 0;
+    static const int pool_size = 100;
+    int textureIndex = 0;
+    GLuint textureOES = GL_NONE;
+    GLuint texture2Dpool[pool_size] = {GL_NONE};
+    GLuint framebufferpool[pool_size] = {GL_NONE};
 };
 
 
